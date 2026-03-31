@@ -1,15 +1,28 @@
 import 'server-only'
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { cookies } from 'next/headers'
+import { jwtVerify } from 'jose'
+
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET
+  if (!secret) throw new Error('JWT_SECRET is not set')
+  return new TextEncoder().encode(secret)
+}
 
 export async function getAuthUser() {
-  const { userId } = await auth()
-  if (!userId) return null
+  const cookieStore = await cookies()
+  const token = cookieStore.get('session')?.value
+  if (!token) return null
 
-  const user = await currentUser()
-  return {
-    userId,
-    role: user?.publicMetadata?.role ?? 'user', // 'admin' | 'user'
-    fullName: `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || user?.emailAddresses?.[0]?.emailAddress || 'Unbekannt',
+  try {
+    const { payload } = await jwtVerify(token, getJwtSecret())
+    return {
+      userId: String(payload.userId),
+      username: payload.username,
+      role: payload.role ?? 'user',
+      fullName: payload.username,
+    }
+  } catch {
+    return null
   }
 }
 

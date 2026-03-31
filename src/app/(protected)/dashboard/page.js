@@ -1,7 +1,9 @@
 import { getAuthUser } from '@/lib/auth'
 import { getAllMinutes } from '@/lib/store'
 import { getFoldersForUser } from '@/lib/folders'
+import { getPageSize } from '@/lib/settings'
 import DraggableMinutesList from '@/components/DraggableMinutesList'
+import Pagination from '@/components/Pagination'
 import SortSelect from '@/components/SortSelect'
 import MineToggle from '@/components/MineToggle'
 import CalendarButton from '@/components/CalendarButton'
@@ -19,25 +21,22 @@ function getDate(m) {
 }
 
 export default async function DashboardPage({ searchParams }) {
-  const { sort = 'date-desc', mine, folder, date } = await searchParams
+  const { sort = 'date-desc', mine, folder, date, page } = await searchParams
   const onlyMine = mine === '1'
+  const currentPage = Math.max(1, parseInt(page ?? '1', 10) || 1)
 
   const authUser = await getAuthUser()
-  const [allMinutes, folders] = await Promise.all([
+  const [allMinutes, folders, pageSize] = await Promise.all([
     getAllMinutes(),
-    getFoldersForUser(authUser.userId, authUser.role),
+    getFoldersForUser(),
+    getPageSize(),
   ])
 
   const activeFolder = folders.find(f => f.id === folder) ?? null
 
   const visibleMinutes = allMinutes.filter(m => {
-    // folder filter
     if (folder && m.folderId !== folder) return false
-
-    // date filter
     if (date && toDateKey(m.meetingDate ?? m.createdAt) !== date) return false
-
-    // visibility filter
     if (onlyMine) return m.ownerId === authUser.userId
     if (authUser.role === 'admin') return true
     if (m.ownerId === authUser.userId) return true
@@ -46,10 +45,12 @@ export default async function DashboardPage({ searchParams }) {
   })
 
   visibleMinutes.sort((a, b) =>
-    sort === 'date-asc'
-      ? getDate(a) - getDate(b)
-      : getDate(b) - getDate(a)
+    sort === 'date-asc' ? getDate(a) - getDate(b) : getDate(b) - getDate(a)
   )
+
+  const totalPages = Math.max(1, Math.ceil(visibleMinutes.length / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
+  const pageMinutes = visibleMinutes.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   // All dates for calendar (ignores folder/date/mine filter)
   const allVisibleForCalendar = allMinutes.filter(m => {
@@ -77,7 +78,8 @@ export default async function DashboardPage({ searchParams }) {
         <CalendarButton minuteDates={minuteDates} />
       </div>
       {date && <DateFilterBadge date={date} />}
-      <DraggableMinutesList minutes={visibleMinutes} folders={folders} />
+      <DraggableMinutesList minutes={pageMinutes} folders={folders} />
+      <Pagination currentPage={safePage} totalPages={totalPages} />
     </div>
   )
 }

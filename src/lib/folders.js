@@ -29,12 +29,10 @@ function rowToFolder(row) {
   }
 }
 
-export async function getFoldersForUser(userId, role) {
+export async function getFoldersForUser() {
   await ensureFoldersTable()
   const sql = getDb()
-  const rows = role === 'admin'
-    ? await sql`SELECT * FROM folders ORDER BY name ASC`
-    : await sql`SELECT * FROM folders WHERE owner_id = ${userId} ORDER BY name ASC`
+  const rows = await sql`SELECT * FROM folders ORDER BY name ASC`
   return rows.map(rowToFolder)
 }
 

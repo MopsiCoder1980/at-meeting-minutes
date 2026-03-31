@@ -56,3 +56,18 @@
 .optionsBtn:hover {
   background: #f3f4f6;
 }
+
+.logoutBtn {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.logoutBtn:hover {
+  background: #f3f4f6;
+}

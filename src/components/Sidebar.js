@@ -8,7 +8,7 @@ export default async function Sidebar() {
   const authUser = await getAuthUser()
   if (!authUser) return null
 
-  const folders = await getFoldersForUser(authUser.userId, authUser.role)
+  const folders = await getFoldersForUser()
 
   return (
     <SidebarShell>

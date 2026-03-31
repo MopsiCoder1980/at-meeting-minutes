@@ -9,7 +9,7 @@ export default async function NewMinutePage() {
   const authUser = await getAuthUser()
   const [allTags, folders] = await Promise.all([
     getAllTags(),
-    getFoldersForUser(authUser.userId, authUser.role),
+    getFoldersForUser(),
   ])
 
   return (

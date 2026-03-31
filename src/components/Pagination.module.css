@@ -1,0 +1,68 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.btn {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.page {
+  min-width: 2rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.1s, border-color 0.1s;
+  text-align: center;
+}
+
+.page:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.page.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+  cursor: default;
+}
+
+.ellipsis {
+  min-width: 2rem;
+  padding: 0.35rem 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  user-select: none;
+}

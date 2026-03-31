@@ -19,7 +19,7 @@ export default async function EditMinutePage({ params }) {
   const boundAction = updateMinuteAction.bind(null, id)
   const [allTags, folders] = await Promise.all([
     getAllTags(),
-    getFoldersForUser(authUser.userId, authUser.role),
+    getFoldersForUser(),
   ])
 
   return (

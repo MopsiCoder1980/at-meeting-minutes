@@ -5,3 +5,74 @@
   justify-content: center;
   background: var(--background);
 }
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #111;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.btn {
+  padding: 0.55rem;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.btn:hover:not(:disabled) {
+  background: #333;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

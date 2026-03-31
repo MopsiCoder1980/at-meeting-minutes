@@ -42,9 +42,9 @@ export default function DraggableMinutesList({ minutes, folders }) {
               <Link href={`/minutes/${m.id}`} className={styles.title}>
                 {m.title}
               </Link>
-              {m.folderId && folderNames[m.folderId] && (
-                <span className={dragStyles.folderLabel}>📁 {folderNames[m.folderId]}</span>
-              )}
+              <span className={dragStyles.folderLabel}>
+                {m.folderId && folderNames[m.folderId] ? `📁 ${folderNames[m.folderId]}` : 'nicht zugewiesen'}
+              </span>
             </div>
             <div className={styles.meta}>
               <div className={styles.metaLeft}>
