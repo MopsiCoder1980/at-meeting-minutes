@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 700px;
+}
+
+.hint {
+  color: #6b7280;
+  font-size: 0.9rem;
+}

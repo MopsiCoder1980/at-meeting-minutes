@@ -1,0 +1,86 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.editor:focus-within {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 2px rgba(74,144,217,0.2);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: linear-gradient(to bottom, #f8f8f8, #efefef);
+  border-bottom: 1px solid #d0d0d0;
+  user-select: none;
+  flex-wrap: wrap;
+}
+
+/* Group = section between separators */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+/* Separator between groups */
+.group + .group::before {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 20px;
+  background: #d0d0d0;
+  margin: 0 4px;
+}
+
+/* Individual toolbar button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #3a3a3a;
+  transition: background 0.08s, border-color 0.08s, box-shadow 0.08s;
+}
+
+.btn:hover {
+  background: linear-gradient(to bottom, #ffffff, #e8e8e8);
+  border-color: #b8b8b8;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+
+.btn:active {
+  background: linear-gradient(to bottom, #dce8f5, #c8dcf0);
+  border-color: #4a90d9;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ── Textarea ─────────────────────────────────────────────── */
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-family: var(--font-geist-mono), ui-monospace, 'Cascadia Code', Consolas, monospace;
+  line-height: 1.7;
+  resize: vertical;
+  min-height: 260px;
+  background: #fff;
+  color: #1a1a1a;
+  box-sizing: border-box;
+}
