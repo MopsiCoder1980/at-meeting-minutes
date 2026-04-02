@@ -30,18 +30,28 @@ function sanitize(html) {
      return sanitizeHtml(html ?? '', ALLOWED_HTML)
 }
 
+function parseStructure(formData) {
+     try {
+          return JSON.parse(formData.get('structure')?.toString() || '{}')
+     } catch {
+          return {}
+     }
+}
+
 export async function createMinuteAction(prevState, formData) {
      const authUser = await getAuthUser()
      if (!authUser) redirect('/sign-in')
 
+     const projectTitle = formData.get('projectTitle')?.toString().trim()
      const title = formData.get('title')?.toString().trim()
      const content = sanitize(formData.get('content')?.toString())
+     const structure = parseStructure(formData)
      const visibility = formData.get('visibility')?.toString() ?? 'private'
      const meetingDate = formData.get('meetingDate')?.toString() || null
      const tags = JSON.parse(formData.get('tags')?.toString() || '[]')
 
-     if (!title || !content) {
-          return { error: 'Titel und Inhalt sind Pflichtfelder.' }
+     if (!projectTitle || !title) {
+          return { error: 'Projekttitel und Meeting-Titel sind Pflichtfelder.' }
      }
 
      const folderRaw = formData.get('folderId')?.toString()
@@ -49,7 +59,9 @@ export async function createMinuteAction(prevState, formData) {
 
      const minute = await createMinute({
           title,
+          projectTitle,
           content,
+          structure,
           ownerId: authUser.userId,
           ownerName: authUser.fullName,
           visibility,
@@ -70,20 +82,22 @@ export async function updateMinuteAction(id, prevState, formData) {
      if (!minute) return { error: 'Nicht gefunden.' }
      if (!canEdit(authUser, minute)) return { error: 'Keine Berechtigung.' }
 
+     const projectTitle = formData.get('projectTitle')?.toString().trim()
      const title = formData.get('title')?.toString().trim()
      const content = sanitize(formData.get('content')?.toString())
+     const structure = parseStructure(formData)
      const visibility = formData.get('visibility')?.toString()
      const meetingDate = formData.get('meetingDate')?.toString() || null
      const tags = JSON.parse(formData.get('tags')?.toString() || '[]')
 
-     if (!title || !content) {
-          return { error: 'Titel und Inhalt sind Pflichtfelder.' }
+     if (!projectTitle || !title) {
+          return { error: 'Projekttitel und Meeting-Titel sind Pflichtfelder.' }
      }
 
      const folderRaw = formData.get('folderId')?.toString()
      const folderId = folderRaw === '' ? null : (folderRaw ?? undefined)
 
-     await updateMinute(id, { title, content, visibility, meetingDate, tags, folderId })
+     await updateMinute(id, { title, projectTitle, content, structure, visibility, meetingDate, tags, folderId })
      revalidatePath(`/minutes/${id}`)
      revalidatePath('/dashboard')
      redirect(`/minutes/${id}`)

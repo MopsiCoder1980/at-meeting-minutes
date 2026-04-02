@@ -12,7 +12,9 @@
       "Bash(find C:UsersheemiCodingagentic-codingmeeting-minutesnode_modulesnextdistdocs -name *search* -o -name *page*)",
       "Bash(\"C:\\\\Users\\\\heemi\\\\Coding\\\\agentic-coding\\\\meeting-minutes\\\\.gitignore\")",
       "Bash(npm uninstall:*)",
-      "Bash(tree C:UsersheemiCodingagentic-codingmeeting-minutes/src -L 4 -I *.module.css)"
+      "Bash(tree C:UsersheemiCodingagentic-codingmeeting-minutes/src -L 4 -I *.module.css)",
+      "Bash(find /c/Users/heemi/Coding/agentic-coding/meeting-minutes/src -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.prisma \\\\\\))",
+      "Bash(find /c/Users/heemi/Coding/agentic-coding/meeting-minutes -name schema.* -o -name *schema* -type f)"
     ]
   }
 }

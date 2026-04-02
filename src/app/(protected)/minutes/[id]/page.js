@@ -6,6 +6,20 @@ import DeleteButton from '@/components/DeleteButton'
 import HtmlRenderer from '@/components/HtmlRenderer'
 import styles from './page.module.css'
 
+function Section({ title, children }) {
+     return (
+          <div className={styles.section}>
+               <h2 className={styles.sectionTitle}>{title}</h2>
+               {children}
+          </div>
+     )
+}
+
+function BulletList({ items }) {
+     if (!items?.length) return <p className={styles.empty}>—</p>
+     return <ul className={styles.list}>{items.map((item, i) => <li key={i}>{item}</li>)}</ul>
+}
+
 export default async function MinutePage({ params }) {
      const { id } = await params
 
@@ -16,10 +30,14 @@ export default async function MinutePage({ params }) {
           notFound()
      }
 
+     const s = minute.structure ?? {}
+     const att = s.attendees ?? {}
+
      return (
           <article className={styles.container}>
                <div className={styles.header}>
                     <div>
+                         {minute.projectTitle && <p className={styles.projectTitle}>{minute.projectTitle}</p>}
                          <h1>{minute.title}</h1>
                          <div className={styles.meta}>
                               <span>{minute.ownerName}</span>
@@ -48,9 +66,61 @@ export default async function MinutePage({ params }) {
                     </div>
                </div>
 
-               <div className={styles.content}>
-                    <HtmlRenderer content={minute.content} />
-               </div>
+               <Section title="Teilnehmer">
+                    <div className={styles.attendees}>
+                         <div>
+                              <p className={styles.attendeeGroup}>Meeting Owner(s)</p>
+                              <BulletList items={att.meetingOwners} />
+                         </div>
+                         <div>
+                              <p className={styles.attendeeGroup}>Agenda Owner(s)</p>
+                              <BulletList items={att.agendaOwners} />
+                         </div>
+                         <div>
+                              <p className={styles.attendeeGroup}>Teilnehmer</p>
+                              <BulletList items={att.attendees} />
+                         </div>
+                    </div>
+               </Section>
+
+               <Section title="Themen">
+                    <BulletList items={s.topics} />
+               </Section>
+
+               <Section title="Entscheidungen">
+                    <BulletList items={s.decisions} />
+               </Section>
+
+               <Section title="Action Items">
+                    {s.actionItems?.length ? (
+                         <table className={styles.table}>
+                              <thead>
+                                   <tr><th>Aufgabe</th><th>Verantwortlich</th><th>Deadline</th></tr>
+                              </thead>
+                              <tbody>
+                                   {s.actionItems.map((item, i) => (
+                                        <tr key={i}>
+                                             <td>{item.task}</td>
+                                             <td>{item.personInCharge}</td>
+                                             <td>{item.deadline ? new Date(item.deadline).toLocaleDateString('de-DE') : '—'}</td>
+                                        </tr>
+                                   ))}
+                              </tbody>
+                         </table>
+                    ) : <p className={styles.empty}>—</p>}
+               </Section>
+
+               <Section title="Offene Fragen">
+                    <BulletList items={s.openQuestions} />
+               </Section>
+
+               {minute.content && (
+                    <Section title="Notizen">
+                         <div className={styles.content}>
+                              <HtmlRenderer content={minute.content} />
+                         </div>
+                    </Section>
+               )}
 
                <div className={styles.footer}>
                     <Link href="/dashboard">← Zurück zur Übersicht</Link>

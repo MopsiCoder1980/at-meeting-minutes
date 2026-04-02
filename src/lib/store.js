@@ -25,13 +25,23 @@ async function ensureTable() {
     )
   `
      await sql`ALTER TABLE minutes ADD COLUMN IF NOT EXISTS folder_id INTEGER`
+     await sql`ALTER TABLE minutes ADD COLUMN IF NOT EXISTS project_title TEXT`
+     await sql`ALTER TABLE minutes ADD COLUMN IF NOT EXISTS structure TEXT`
 }
 
+const EMPTY_STRUCTURE = { attendees: { meetingOwners: [], agendaOwners: [], attendees: [] }, topics: [], decisions: [], actionItems: [], openQuestions: [] }
+
 function rowToMinute(row) {
+     let structure = EMPTY_STRUCTURE
+     if (row.structure) {
+          try { structure = JSON.parse(row.structure) } catch { /* ignore */ }
+     }
      return {
           id: String(row.id),
+          projectTitle: row.project_title ?? '',
           title: row.title,
           content: row.content,
+          structure,
           ownerId: row.owner_id,
           ownerName: row.owner_name,
           visibility: row.visibility,
@@ -57,13 +67,13 @@ export async function getMinuteById(id) {
      return rows[0] ? rowToMinute(rows[0]) : null
 }
 
-export async function createMinute({ title, content, ownerId, ownerName, visibility = 'private', meetingDate = null, tags = [], folderId = null }) {
+export async function createMinute({ title, projectTitle = '', content, structure = null, ownerId, ownerName, visibility = 'private', meetingDate = null, tags = [], folderId = null }) {
      await ensureTable()
      const sql = getDb()
      const now = new Date().toISOString()
      const rows = await sql`
-    INSERT INTO minutes (title, content, owner_id, owner_name, visibility, meeting_date, tags, folder_id, created_at, updated_at)
-    VALUES (${title}, ${content}, ${ownerId}, ${ownerName}, ${visibility}, ${meetingDate}, ${JSON.stringify(tags)}, ${folderId ?? null}, ${now}, ${now})
+    INSERT INTO minutes (title, project_title, content, structure, owner_id, owner_name, visibility, meeting_date, tags, folder_id, created_at, updated_at)
+    VALUES (${title}, ${projectTitle}, ${content}, ${JSON.stringify(structure ?? {})}, ${ownerId}, ${ownerName}, ${visibility}, ${meetingDate}, ${JSON.stringify(tags)}, ${folderId ?? null}, ${now}, ${now})
     RETURNING *
   `
      return rowToMinute(rows[0])
@@ -76,7 +86,9 @@ export async function updateMinute(id, updates) {
      const sql = getDb()
      const merged = {
           title: updates.title ?? existing.title,
+          projectTitle: updates.projectTitle !== undefined ? updates.projectTitle : existing.projectTitle,
           content: updates.content ?? existing.content,
+          structure: updates.structure !== undefined ? updates.structure : existing.structure,
           visibility: updates.visibility ?? existing.visibility,
           meetingDate: updates.meetingDate !== undefined ? updates.meetingDate : existing.meetingDate,
           tags: updates.tags ?? existing.tags,
@@ -86,7 +98,8 @@ export async function updateMinute(id, updates) {
 
      const rows = await sql`
     UPDATE minutes
-    SET title = ${merged.title}, content = ${merged.content}, visibility = ${merged.visibility},
+    SET title = ${merged.title}, project_title = ${merged.projectTitle}, content = ${merged.content},
+        structure = ${JSON.stringify(merged.structure ?? {})}, visibility = ${merged.visibility},
         meeting_date = ${merged.meetingDate}, tags = ${JSON.stringify(merged.tags)},
         folder_id = ${merged.folderId ?? null}, updated_at = ${merged.updatedAt}
     WHERE id = ${id}

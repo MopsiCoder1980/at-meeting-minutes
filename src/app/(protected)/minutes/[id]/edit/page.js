@@ -3,6 +3,7 @@ import { getMinuteById, getAllTags } from '@/lib/store'
 import { notFound, redirect } from 'next/navigation'
 import { updateMinuteAction } from '@/lib/actions'
 import { getFoldersForUser } from '@/lib/folders'
+import { getAllUsers } from '@/lib/users'
 import MinuteForm from '@/components/MinuteForm'
 import Link from 'next/link'
 import styles from './page.module.css'
@@ -17,9 +18,10 @@ export default async function EditMinutePage({ params }) {
      if (!canEdit(authUser, minute)) redirect('/dashboard')
 
      const boundAction = updateMinuteAction.bind(null, id)
-     const [allTags, folders] = await Promise.all([
+     const [allTags, folders, allUsers] = await Promise.all([
           getAllTags(),
           getFoldersForUser(),
+          getAllUsers(),
      ])
 
      return (
@@ -28,7 +30,7 @@ export default async function EditMinutePage({ params }) {
                     <h1>Meeting bearbeiten</h1>
                     <Link href={`/minutes/${id}`}>Abbrechen</Link>
                </div>
-               <MinuteForm action={boundAction} defaultValues={minute} allTags={allTags} folders={folders} />
+               <MinuteForm action={boundAction} defaultValues={minute} allTags={allTags} folders={folders} allUsers={allUsers} />
           </div>
      )
 }
