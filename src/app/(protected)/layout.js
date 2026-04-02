@@ -5,19 +5,19 @@ import Sidebar from '@/components/Sidebar'
 import styles from './layout.module.css'
 
 export default async function ProtectedLayout({ children }) {
-  const authUser = await getAuthUser()
+     const authUser = await getAuthUser()
 
-  if (!authUser) {
-    redirect('/sign-in')
-  }
+     if (!authUser) {
+          redirect('/sign-in')
+     }
 
-  return (
-    <div className={styles.wrapper}>
-      <NavBar />
-      <div className={styles.body}>
-        <Sidebar />
-        <main className={styles.main}>{children}</main>
-      </div>
-    </div>
-  )
+     return (
+          <div className={styles.wrapper}>
+               <NavBar />
+               <div className={styles.body}>
+                    <Sidebar />
+                    <main className={styles.main}>{children}</main>
+               </div>
+          </div>
+     )
 }

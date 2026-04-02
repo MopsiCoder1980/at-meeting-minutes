@@ -9,32 +9,32 @@ import styles from './DateTimePicker.module.css'
 registerLocale('de', de)
 
 export default function DateTimePicker({ name, defaultValue }) {
-  const [selected, setSelected] = useState(
-    defaultValue ? new Date(defaultValue) : null
-  )
+     const [selected, setSelected] = useState(
+          defaultValue ? new Date(defaultValue) : null
+     )
 
-  return (
-    <div className={styles.wrapper}>
-      <ReactDatePicker
-        selected={selected}
-        onChange={setSelected}
-        locale="de"
-        dateFormat="dd.MM.yyyy HH:mm"
-        showTimeSelect
-        timeFormat="HH:mm"
-        timeIntervals={15}
-        timeCaption="Uhrzeit"
-        placeholderText="TT.MM.JJJJ HH:MM"
-        className={styles.input}
-        calendarClassName={styles.calendar}
-        isClearable
-        showWeekNumbers
-      />
-      <input
-        type="hidden"
-        name={name}
-        value={selected ? selected.toISOString() : ''}
-      />
-    </div>
-  )
+     return (
+          <div className={styles.wrapper}>
+               <ReactDatePicker
+                    selected={selected}
+                    onChange={setSelected}
+                    locale="de"
+                    dateFormat="dd.MM.yyyy HH:mm"
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    timeCaption="Uhrzeit"
+                    placeholderText="TT.MM.JJJJ HH:MM"
+                    className={styles.input}
+                    calendarClassName={styles.calendar}
+                    isClearable
+                    showWeekNumbers
+               />
+               <input
+                    type="hidden"
+                    name={name}
+                    value={selected ? selected.toISOString() : ''}
+               />
+          </div>
+     )
 }

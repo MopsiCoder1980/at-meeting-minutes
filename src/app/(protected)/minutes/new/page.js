@@ -6,16 +6,16 @@ import MinuteForm from '@/components/MinuteForm'
 import styles from './page.module.css'
 
 export default async function NewMinutePage() {
-  const authUser = await getAuthUser()
-  const [allTags, folders] = await Promise.all([
-    getAllTags(),
-    getFoldersForUser(),
-  ])
+     const authUser = await getAuthUser()
+     const [allTags, folders] = await Promise.all([
+          getAllTags(),
+          getFoldersForUser(),
+     ])
 
-  return (
-    <div className={styles.container}>
-      <h1>Neues Meeting</h1>
-      <MinuteForm action={createMinuteAction} allTags={allTags} folders={folders} />
-    </div>
-  )
+     return (
+          <div className={styles.container}>
+               <h1>Neues Meeting</h1>
+               <MinuteForm action={createMinuteAction} allTags={allTags} folders={folders} />
+          </div>
+     )
 }

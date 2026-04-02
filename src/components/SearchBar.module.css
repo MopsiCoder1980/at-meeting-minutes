@@ -1,129 +1,133 @@
 .wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
+     position: relative;
+     width: 100%;
+     max-width: 420px;
 }
 
 .input {
-  width: 100%;
-  padding: 0.45rem 2rem 0.45rem 0.85rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  background: #f9fafb;
-  color: inherit;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+     width: 100%;
+     padding: 0.45rem 2rem 0.45rem 0.85rem;
+     border: 1px solid #d1d5db;
+     border-radius: 8px;
+     font-size: 0.9rem;
+     background: #f9fafb;
+     color: inherit;
+     outline: none;
+     transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
 }
 
 .input:focus {
-  border-color: #6b7280;
-  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.12);
-  background: #fff;
+     border-color: #6b7280;
+     box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.12);
+     background: #fff;
 }
 
 /* Hide browser default clear button */
 .input::-webkit-search-cancel-button {
-  display: none;
+     display: none;
 }
 
 .spinner {
-  position: absolute;
-  right: 0.6rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
-  border: 2px solid #d1d5db;
-  border-top-color: #6b7280;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+     position: absolute;
+     right: 0.6rem;
+     top: 50%;
+     transform: translateY(-50%);
+     width: 14px;
+     height: 14px;
+     border: 2px solid #d1d5db;
+     border-top-color: #6b7280;
+     border-radius: 50%;
+     animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: translateY(-50%) rotate(360deg); }
+     to {
+          transform: translateY(-50%) rotate(360deg);
+     }
 }
 
 .dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  list-style: none;
-  margin: 0;
-  padding: 0.3rem 0;
-  z-index: 100;
-  overflow: hidden;
+     position: absolute;
+     top: calc(100% + 6px);
+     left: 0;
+     right: 0;
+     background: #fff;
+     border: 1px solid #e5e7eb;
+     border-radius: 10px;
+     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+     list-style: none;
+     margin: 0;
+     padding: 0.3rem 0;
+     z-index: 100;
+     overflow: hidden;
 }
 
 .item {
-  padding: 0.6rem 0.9rem;
-  cursor: pointer;
-  transition: background 0.1s;
+     padding: 0.6rem 0.9rem;
+     cursor: pointer;
+     transition: background 0.1s;
 }
 
 .item.active {
-  background: #f3f4f6;
+     background: #f3f4f6;
 }
 
 .itemTitle {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+     display: block;
+     font-size: 0.9rem;
+     font-weight: 500;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
 }
 
 .itemMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.2rem;
-  font-size: 0.75rem;
-  color: #6b7280;
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     margin-top: 0.2rem;
+     font-size: 0.75rem;
+     color: #6b7280;
 }
 
 .tags {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 160px;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+     max-width: 160px;
 }
 
 .badge {
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  flex-shrink: 0;
+     padding: 0.1rem 0.4rem;
+     border-radius: 4px;
+     font-size: 0.7rem;
+     font-weight: 500;
+     flex-shrink: 0;
 }
 
 .shared {
-  background: #dbeafe;
-  color: #1d4ed8;
+     background: #dbeafe;
+     color: #1d4ed8;
 }
 
 .private {
-  background: #f3f4f6;
-  color: #374151;
+     background: #f3f4f6;
+     color: #374151;
 }
 
 .empty {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  padding: 0.75rem 0.9rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-  z-index: 100;
+     position: absolute;
+     top: calc(100% + 6px);
+     left: 0;
+     right: 0;
+     background: #fff;
+     border: 1px solid #e5e7eb;
+     border-radius: 10px;
+     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+     padding: 0.75rem 0.9rem;
+     font-size: 0.875rem;
+     color: #6b7280;
+     z-index: 100;
 }

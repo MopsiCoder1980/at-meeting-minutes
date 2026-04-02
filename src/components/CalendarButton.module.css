@@ -1,16 +1,18 @@
 .btn {
-  padding: 0.4rem 0.85rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #fff;
-  font-size: 0.875rem;
-  cursor: pointer;
-  color: inherit;
-  white-space: nowrap;
-  transition: background 0.1s, border-color 0.1s;
+     padding: 0.4rem 0.85rem;
+     border: 1px solid #d1d5db;
+     border-radius: 6px;
+     background: #fff;
+     font-size: 0.875rem;
+     cursor: pointer;
+     color: inherit;
+     white-space: nowrap;
+     transition:
+          background 0.1s,
+          border-color 0.1s;
 }
 
 .btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+     background: #f3f4f6;
+     border-color: #9ca3af;
 }

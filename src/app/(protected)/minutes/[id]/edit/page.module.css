@@ -1,22 +1,22 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+     display: flex;
+     flex-direction: column;
+     gap: 1.5rem;
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
 }
 
 .header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
+     font-size: 1.5rem;
+     font-weight: 700;
+     margin: 0;
 }
 
 .header a {
-  font-size: 0.9rem;
-  color: #6b7280;
+     font-size: 0.9rem;
+     color: #6b7280;
 }
