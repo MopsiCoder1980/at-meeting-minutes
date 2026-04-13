@@ -1,0 +1,25 @@
+.defaultBadge {
+     display: inline-block;
+     padding: 2px 8px;
+     background: var(--accent, #3b82f6);
+     color: white;
+     border-radius: 10px;
+     font-size: 0.75rem;
+}
+
+.setDefaultBtn {
+     padding: 2px 8px;
+     border: 1px solid var(--border, #d1d5db);
+     border-radius: 4px;
+     font-size: 0.8rem;
+     cursor: pointer;
+     background: transparent;
+}
+
+.setDefaultBtn:hover {
+     background: var(--surface, #f3f4f6);
+}
+
+.addTitle {
+     margin-top: 20px;
+}

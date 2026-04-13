@@ -1,0 +1,43 @@
+.wrapper {
+     width: 100%;
+}
+
+.tabBar {
+     display: flex;
+     gap: 0;
+     border-bottom: 2px solid var(--border, #e5e7eb);
+     margin-bottom: 2rem;
+}
+
+.tab {
+     padding: 0.6rem 1.25rem;
+     background: none;
+     border: none;
+     border-bottom: 2px solid transparent;
+     margin-bottom: -2px;
+     font-size: 0.9rem;
+     font-weight: 500;
+     color: var(--muted, #6b7280);
+     cursor: pointer;
+     white-space: nowrap;
+     transition: color 0.15s, border-color 0.15s;
+}
+
+.tab:hover {
+     color: var(--foreground, #111);
+}
+
+.tabActive {
+     color: var(--foreground, #111);
+     border-bottom-color: var(--foreground, #111);
+}
+
+.panel {
+     display: flex;
+     flex-direction: column;
+     gap: 2rem;
+}
+
+.panel[hidden] {
+     display: none;
+}

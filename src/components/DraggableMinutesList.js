@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import MoveToFolderOverlay from './MoveToFolderOverlay'
 import styles from './MinutesList.module.css'
 import dragStyles from './DraggableMinutesList.module.css'
@@ -9,15 +10,18 @@ import dragStyles from './DraggableMinutesList.module.css'
 const folderMap = (folders) => Object.fromEntries(folders.map(f => [f.id, f.name]))
 
 export default function DraggableMinutesList({ minutes, folders }) {
-     const [overlay, setOverlay] = useState(null) // { minuteId, minuteTitle, currentFolderId }
+     const [overlay, setOverlay] = useState(null)
      const [dragging, setDragging] = useState(null)
      const folderNames = folderMap(folders)
+     const tList = useTranslations('minutesList')
+     const tMinute = useTranslations('minute')
+     const locale = useLocale()
 
      if (minutes.length === 0) {
           return (
                <div className={styles.empty}>
-                    <p>Noch keine Meeting Minutes vorhanden.</p>
-                    <Link href="/minutes/new">Erstes Meeting anlegen</Link>
+                    <p>{tList('empty')}</p>
+                    <Link href="/minutes/new">{tList('createFirst')}</Link>
                </div>
           )
      }
@@ -38,22 +42,22 @@ export default function DraggableMinutesList({ minutes, folders }) {
                               onDragEnd={() => setDragging(null)}
                          >
                               <div className={dragStyles.itemTop}>
-                                   <span className={dragStyles.dragHandle} title="Ziehen zum Verschieben">⠿</span>
+                                   <span className={dragStyles.dragHandle} title={tList('dragHandle')}>⠿</span>
                                    <Link href={`/minutes/${m.id}`} className={styles.title}>
                                         {m.title}
                                    </Link>
                                    <span className={dragStyles.folderLabel}>
-                                        {m.folderId && folderNames[m.folderId] ? `📁 ${folderNames[m.folderId]}` : 'nicht zugewiesen'}
+                                        {m.folderId && folderNames[m.folderId] ? `📁 ${folderNames[m.folderId]}` : tList('noFolder')}
                                    </span>
                               </div>
                               <div className={styles.meta}>
                                    <div className={styles.metaLeft}>
                                         <span className={`${styles.badge} ${m.visibility === 'shared' ? styles.shared : styles.private}`}>
-                                             {m.visibility === 'shared' ? 'Geteilt' : 'Privat'}
+                                             {m.visibility === 'shared' ? tMinute('shared') : tMinute('private')}
                                         </span>
                                         <span className={styles.author}>{m.ownerName}</span>
                                         <span className={styles.date}>
-                                             {new Date(m.meetingDate ?? m.createdAt).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}
+                                             {new Date(m.meetingDate ?? m.createdAt).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short' })}
                                         </span>
                                    </div>
                                    <div className={dragStyles.metaRight}>
@@ -67,9 +71,9 @@ export default function DraggableMinutesList({ minutes, folders }) {
                                         <button
                                              className={dragStyles.moveBtn}
                                              onClick={() => setOverlay({ minuteId: m.id, minuteTitle: m.title, currentFolderId: m.folderId })}
-                                             title="Verschieben nach"
+                                             title={tList('moveTo')}
                                         >
-                                             Verschieben nach
+                                             {tList('moveTo')}
                                         </button>
                                    </div>
                               </div>

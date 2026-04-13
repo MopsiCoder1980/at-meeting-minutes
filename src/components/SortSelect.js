@@ -1,17 +1,19 @@
 'use client'
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import styles from './SortSelect.module.css'
-
-const SORT_OPTIONS = [
-     { value: 'date-desc', label: 'Datum absteigend' },
-     { value: 'date-asc', label: 'Datum aufsteigend' },
-]
 
 export default function SortSelect({ current }) {
      const router = useRouter()
      const pathname = usePathname()
      const searchParams = useSearchParams()
+     const t = useTranslations('sort')
+
+     const SORT_OPTIONS = [
+          { value: 'date-desc', label: t('dateDesc') },
+          { value: 'date-asc', label: t('dateAsc') },
+     ]
 
      function handleChange(e) {
           const params = new URLSearchParams(searchParams)
@@ -20,12 +22,7 @@ export default function SortSelect({ current }) {
      }
 
      return (
-          <select
-               value={current}
-               onChange={handleChange}
-               className={styles.select}
-               aria-label="Sortierung"
-          >
+          <select value={current} onChange={handleChange} className={styles.select} aria-label={t('ariaLabel')}>
                {SORT_OPTIONS.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                ))}

@@ -1,12 +1,19 @@
 import Link from 'next/link'
+import { getTranslations, getLocale } from 'next-intl/server'
 import styles from './MinutesList.module.css'
 
-export default function MinutesList({ minutes }) {
+export default async function MinutesList({ minutes }) {
+  const [tList, tMinute, locale] = await Promise.all([
+    getTranslations('minutesList'),
+    getTranslations('minute'),
+    getLocale(),
+  ])
+
   if (minutes.length === 0) {
     return (
       <div className={styles.empty}>
-        <p>Noch keine Meeting Minutes vorhanden.</p>
-        <Link href="/minutes/new">Erstes Meeting anlegen</Link>
+        <p>{tList('empty')}</p>
+        <Link href="/minutes/new">{tList('createFirst')}</Link>
       </div>
     )
   }
@@ -21,11 +28,11 @@ export default function MinutesList({ minutes }) {
           <div className={styles.meta}>
             <div className={styles.metaLeft}>
               <span className={`${styles.badge} ${m.visibility === 'shared' ? styles.shared : styles.private}`}>
-                {m.visibility === 'shared' ? 'Geteilt' : 'Privat'}
+                {m.visibility === 'shared' ? tMinute('shared') : tMinute('private')}
               </span>
               <span className={styles.author}>{m.ownerName}</span>
               <span className={styles.date}>
-                {new Date(m.meetingDate ?? m.createdAt).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}
+                {new Date(m.meetingDate ?? m.createdAt).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short' })}
               </span>
             </div>
             {m.tags?.length > 0 && (

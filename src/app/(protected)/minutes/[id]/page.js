@@ -1,5 +1,6 @@
 import { getAuthUser, canEdit, canDelete, canView } from '@/lib/auth'
 import { getMinuteById } from '@/lib/store'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DeleteButton from '@/components/DeleteButton'
@@ -23,12 +24,14 @@ function BulletList({ items }) {
 export default async function MinutePage({ params }) {
      const { id } = await params
 
-     const authUser = await getAuthUser()
-     const minute = await getMinuteById(id)
+     const [authUser, minute, t, locale] = await Promise.all([
+          getAuthUser(),
+          getMinuteById(id),
+          getTranslations('minute'),
+          getLocale(),
+     ])
 
-     if (!minute || !canView(authUser, minute)) {
-          notFound()
-     }
+     if (!minute || !canView(authUser, minute)) notFound()
 
      const s = minute.structure ?? {}
      const att = s.attendees ?? {}
@@ -42,67 +45,45 @@ export default async function MinutePage({ params }) {
                          <div className={styles.meta}>
                               <span>{minute.ownerName}</span>
                               <span>·</span>
-                              <span>{new Date(minute.meetingDate ?? minute.createdAt).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                              <span>{new Date(minute.meetingDate ?? minute.createdAt).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short' })}</span>
                               <span>·</span>
                               <span className={`${styles.badge} ${minute.visibility === 'shared' ? styles.shared : styles.private}`}>
-                                   {minute.visibility === 'shared' ? 'Geteilt' : 'Privat'}
+                                   {minute.visibility === 'shared' ? t('shared') : t('private')}
                               </span>
                          </div>
                          {minute.tags?.length > 0 && (
                               <div className={styles.tags}>
-                                   {minute.tags.map(tag => (
-                                        <span key={tag} className={styles.tag}>{tag}</span>
-                                   ))}
+                                   {minute.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
                               </div>
                          )}
                     </div>
                     <div className={styles.actions}>
-                         {canEdit(authUser, minute) && (
-                              <Link href={`/minutes/${id}/edit`} className={styles.editBtn}>
-                                   Bearbeiten
-                              </Link>
-                         )}
+                         {canEdit(authUser, minute) && <Link href={`/minutes/${id}/edit`} className={styles.editBtn}>{t('edit')}</Link>}
                          {canDelete(authUser, minute) && <DeleteButton id={id} />}
                     </div>
                </div>
 
-               <Section title="Teilnehmer">
+               <Section title={t('sectionAttendees')}>
                     <div className={styles.attendees}>
-                         <div>
-                              <p className={styles.attendeeGroup}>Meeting Owner(s)</p>
-                              <BulletList items={att.meetingOwners} />
-                         </div>
-                         <div>
-                              <p className={styles.attendeeGroup}>Agenda Owner(s)</p>
-                              <BulletList items={att.agendaOwners} />
-                         </div>
-                         <div>
-                              <p className={styles.attendeeGroup}>Teilnehmer</p>
-                              <BulletList items={att.attendees} />
-                         </div>
+                         <div><p className={styles.attendeeGroup}>{t('meetingOwners')}</p><BulletList items={att.meetingOwners} /></div>
+                         <div><p className={styles.attendeeGroup}>{t('agendaOwners')}</p><BulletList items={att.agendaOwners} /></div>
+                         <div><p className={styles.attendeeGroup}>{t('attendees')}</p><BulletList items={att.attendees} /></div>
                     </div>
                </Section>
 
-               <Section title="Themen">
-                    <BulletList items={s.topics} />
-               </Section>
+               <Section title={t('sectionTopics')}><BulletList items={s.topics} /></Section>
+               <Section title={t('sectionDecisions')}><BulletList items={s.decisions} /></Section>
 
-               <Section title="Entscheidungen">
-                    <BulletList items={s.decisions} />
-               </Section>
-
-               <Section title="Action Items">
+               <Section title={t('sectionActionItems')}>
                     {s.actionItems?.length ? (
                          <table className={styles.table}>
-                              <thead>
-                                   <tr><th>Aufgabe</th><th>Verantwortlich</th><th>Deadline</th></tr>
-                              </thead>
+                              <thead><tr><th>{t('actionTask')}</th><th>{t('actionResponsible')}</th><th>{t('actionDeadline')}</th></tr></thead>
                               <tbody>
                                    {s.actionItems.map((item, i) => (
                                         <tr key={i}>
                                              <td>{item.task}</td>
                                              <td>{item.personInCharge}</td>
-                                             <td>{item.deadline ? new Date(item.deadline).toLocaleDateString('de-DE') : '—'}</td>
+                                             <td>{item.deadline ? new Date(item.deadline).toLocaleDateString(locale) : '—'}</td>
                                         </tr>
                                    ))}
                               </tbody>
@@ -110,24 +91,18 @@ export default async function MinutePage({ params }) {
                     ) : <p className={styles.empty}>—</p>}
                </Section>
 
-               <Section title="Offene Fragen">
-                    <BulletList items={s.openQuestions} />
-               </Section>
+               <Section title={t('sectionOpenQuestions')}><BulletList items={s.openQuestions} /></Section>
 
                {minute.content && (
-                    <Section title="Notizen">
-                         <div className={styles.content}>
-                              <HtmlRenderer content={minute.content} />
-                         </div>
+                    <Section title={t('sectionNotes')}>
+                         <div className={styles.content}><HtmlRenderer content={minute.content} /></div>
                     </Section>
                )}
 
                <div className={styles.footer}>
-                    <Link href="/dashboard">← Zurück zur Übersicht</Link>
+                    <Link href="/dashboard">{t('back')}</Link>
                     {minute.updatedAt !== minute.createdAt && (
-                         <span className={styles.updated}>
-                              Zuletzt bearbeitet: {new Date(minute.updatedAt).toLocaleDateString('de-DE')}
-                         </span>
+                         <span className={styles.updated}>{t('lastEdited')} {new Date(minute.updatedAt).toLocaleDateString(locale)}</span>
                     )}
                </div>
           </article>

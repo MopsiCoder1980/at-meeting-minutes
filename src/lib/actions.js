@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getAuthUser, canEdit, canDelete } from './auth'
 import { createMinute, updateMinute, deleteMinute, getMinuteById } from './store'
+import { getTranslations } from 'next-intl/server'
 
 const ALLOWED_HTML = {
      allowedTags: [
@@ -20,22 +21,14 @@ const ALLOWED_HTML = {
           'td': ['colspan', 'rowspan'],
      },
      allowedStyles: {
-          '*': {
-               'text-align': [/^(left|center|right|justify)$/],
-          },
+          '*': { 'text-align': [/^(left|center|right|justify)$/] },
      },
 }
 
-function sanitize(html) {
-     return sanitizeHtml(html ?? '', ALLOWED_HTML)
-}
+function sanitize(html) { return sanitizeHtml(html ?? '', ALLOWED_HTML) }
 
 function parseStructure(formData) {
-     try {
-          return JSON.parse(formData.get('structure')?.toString() || '{}')
-     } catch {
-          return {}
-     }
+     try { return JSON.parse(formData.get('structure')?.toString() || '{}') } catch { return {} }
 }
 
 export async function createMinuteAction(prevState, formData) {
@@ -44,30 +37,24 @@ export async function createMinuteAction(prevState, formData) {
 
      const projectTitle = formData.get('projectTitle')?.toString().trim()
      const title = formData.get('title')?.toString().trim()
+
+     if (!projectTitle || !title) {
+          const t = await getTranslations('error')
+          return { error: t('minuteRequired') }
+     }
+
      const content = sanitize(formData.get('content')?.toString())
      const structure = parseStructure(formData)
      const visibility = formData.get('visibility')?.toString() ?? 'private'
      const meetingDate = formData.get('meetingDate')?.toString() || null
      const tags = JSON.parse(formData.get('tags')?.toString() || '[]')
-
-     if (!projectTitle || !title) {
-          return { error: 'Projekttitel und Meeting-Titel sind Pflichtfelder.' }
-     }
-
      const folderRaw = formData.get('folderId')?.toString()
      const folderId = folderRaw === '' ? null : (folderRaw ?? null)
 
      const minute = await createMinute({
-          title,
-          projectTitle,
-          content,
-          structure,
-          ownerId: authUser.userId,
-          ownerName: authUser.fullName,
-          visibility,
-          meetingDate,
-          tags,
-          folderId,
+          title, projectTitle, content, structure,
+          ownerId: authUser.userId, ownerName: authUser.fullName,
+          visibility, meetingDate, tags, folderId,
      })
 
      revalidatePath('/dashboard')
@@ -79,21 +66,21 @@ export async function updateMinuteAction(id, prevState, formData) {
      if (!authUser) redirect('/sign-in')
 
      const minute = await getMinuteById(id)
-     if (!minute) return { error: 'Nicht gefunden.' }
-     if (!canEdit(authUser, minute)) return { error: 'Keine Berechtigung.' }
+     const t = await getTranslations('error')
+
+     if (!minute) return { error: t('notFound') }
+     if (!canEdit(authUser, minute)) return { error: t('noPermission') }
 
      const projectTitle = formData.get('projectTitle')?.toString().trim()
      const title = formData.get('title')?.toString().trim()
+
+     if (!projectTitle || !title) return { error: t('minuteRequired') }
+
      const content = sanitize(formData.get('content')?.toString())
      const structure = parseStructure(formData)
      const visibility = formData.get('visibility')?.toString()
      const meetingDate = formData.get('meetingDate')?.toString() || null
      const tags = JSON.parse(formData.get('tags')?.toString() || '[]')
-
-     if (!projectTitle || !title) {
-          return { error: 'Projekttitel und Meeting-Titel sind Pflichtfelder.' }
-     }
-
      const folderRaw = formData.get('folderId')?.toString()
      const folderId = folderRaw === '' ? null : (folderRaw ?? undefined)
 
@@ -108,8 +95,10 @@ export async function deleteMinuteAction(id) {
      if (!authUser) redirect('/sign-in')
 
      const minute = await getMinuteById(id)
-     if (!minute) return { error: 'Nicht gefunden.' }
-     if (!canDelete(authUser, minute)) return { error: 'Keine Berechtigung.' }
+     const t = await getTranslations('error')
+
+     if (!minute) return { error: t('notFound') }
+     if (!canDelete(authUser, minute)) return { error: t('noPermission') }
 
      await deleteMinute(id)
      revalidatePath('/dashboard')

@@ -1,0 +1,13 @@
+.select {
+     padding: 4px 8px;
+     border: 1px solid var(--border, #d1d5db);
+     border-radius: 4px;
+     font-size: 0.85rem;
+     background: transparent;
+     cursor: pointer;
+     color: inherit;
+}
+
+.select:disabled {
+     opacity: 0.5;
+}

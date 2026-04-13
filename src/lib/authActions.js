@@ -7,6 +7,7 @@ import { SignJWT } from 'jose'
 import bcrypt from 'bcryptjs'
 import { getUserByUsername, createUser, deleteUser, updatePasswordHash } from './users'
 import { getAuthUser } from './auth'
+import { getTranslations } from 'next-intl/server'
 
 function getJwtSecret() {
      return new TextEncoder().encode(process.env.JWT_SECRET)
@@ -15,20 +16,15 @@ function getJwtSecret() {
 export async function loginAction(prevState, formData) {
      const username = formData.get('username')?.toString().trim()
      const password = formData.get('password')?.toString()
+     const t = await getTranslations('error')
 
-     if (!username || !password) {
-          return { error: 'Benutzername und Passwort sind Pflichtfelder.' }
-     }
+     if (!username || !password) return { error: t('authRequired') }
 
      const user = await getUserByUsername(username)
-     if (!user) {
-          return { error: 'Ungültige Anmeldedaten.' }
-     }
+     if (!user) return { error: t('invalidCredentials') }
 
      const valid = await bcrypt.compare(password, user.password_hash)
-     if (!valid) {
-          return { error: 'Ungültige Anmeldedaten.' }
-     }
+     if (!valid) return { error: t('invalidCredentials') }
 
      const token = await new SignJWT({ userId: String(user.id), username: user.username, role: user.role })
           .setProtectedHeader({ alg: 'HS256' })
@@ -55,18 +51,16 @@ export async function logoutAction() {
 
 export async function createUserAction(prevState, formData) {
      const authUser = await getAuthUser()
-     if (authUser?.role !== 'admin') return { error: 'Keine Berechtigung.' }
+     const t = await getTranslations('error')
+
+     if (authUser?.role !== 'admin') return { error: t('noPermission') }
 
      const username = formData.get('username')?.toString().trim()
      const password = formData.get('password')?.toString()
      const role = formData.get('role')?.toString() ?? 'user'
 
-     if (!username || !password) {
-          return { error: 'Benutzername und Passwort sind Pflichtfelder.' }
-     }
-     if (password.length < 8) {
-          return { error: 'Passwort muss mindestens 8 Zeichen lang sein.' }
-     }
+     if (!username || !password) return { error: t('authRequired') }
+     if (password.length < 8) return { error: t('passwordMin8') }
 
      try {
           const passwordHash = await bcrypt.hash(password, 12)
@@ -74,36 +68,30 @@ export async function createUserAction(prevState, formData) {
           revalidatePath('/options')
           return { success: true }
      } catch (e) {
-          if (e.message?.includes('unique') || e.code === '23505') {
-               return { error: 'Benutzername bereits vergeben.' }
-          }
-          return { error: 'Fehler beim Erstellen des Benutzers.' }
+          if (e.message?.includes('unique') || e.code === '23505') return { error: t('usernameTaken') }
+          return { error: t('createUserFailed') }
      }
 }
 
 export async function changePasswordAction(prevState, formData) {
      const authUser = await getAuthUser()
-     if (!authUser) return { error: 'Nicht angemeldet.' }
+     const t = await getTranslations('error')
+
+     if (!authUser) return { error: t('notLoggedIn') }
 
      const currentPassword = formData.get('currentPassword')?.toString()
      const newPassword = formData.get('newPassword')?.toString()
      const confirmPassword = formData.get('confirmPassword')?.toString()
 
-     if (!currentPassword || !newPassword || !confirmPassword) {
-          return { error: 'Alle Felder sind Pflichtfelder.' }
-     }
-     if (newPassword.length < 8) {
-          return { error: 'Neues Passwort muss mindestens 8 Zeichen lang sein.' }
-     }
-     if (newPassword !== confirmPassword) {
-          return { error: 'Passwörter stimmen nicht überein.' }
-     }
+     if (!currentPassword || !newPassword || !confirmPassword) return { error: t('allRequired') }
+     if (newPassword.length < 8) return { error: t('newPasswordMin8') }
+     if (newPassword !== confirmPassword) return { error: t('passwordMismatch') }
 
      const user = await getUserByUsername(authUser.username)
-     if (!user) return { error: 'Benutzer nicht gefunden.' }
+     if (!user) return { error: t('userNotFound') }
 
      const valid = await bcrypt.compare(currentPassword, user.password_hash)
-     if (!valid) return { error: 'Aktuelles Passwort ist falsch.' }
+     if (!valid) return { error: t('wrongPassword') }
 
      const passwordHash = await bcrypt.hash(newPassword, 12)
      await updatePasswordHash(authUser.userId, passwordHash)
@@ -112,7 +100,8 @@ export async function changePasswordAction(prevState, formData) {
 
 export async function deleteUserAction(id) {
      const authUser = await getAuthUser()
-     if (authUser?.role !== 'admin') return { error: 'Keine Berechtigung.' }
+     const t = await getTranslations('error')
+     if (authUser?.role !== 'admin') return { error: t('noPermission') }
      await deleteUser(id)
      revalidatePath('/options')
 }

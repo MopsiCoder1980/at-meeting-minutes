@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import styles from './SearchBar.module.css'
 
 export default function SearchBar() {
@@ -13,14 +14,11 @@ export default function SearchBar() {
      const containerRef = useRef(null)
      const debounceRef = useRef(null)
      const router = useRouter()
+     const t = useTranslations('search')
 
      useEffect(() => {
           clearTimeout(debounceRef.current)
-          if (query.length < 2) {
-               setResults([])
-               setOpen(false)
-               return
-          }
+          if (query.length < 2) { setResults([]); setOpen(false); return }
           debounceRef.current = setTimeout(async () => {
                setLoading(true)
                try {
@@ -29,43 +27,27 @@ export default function SearchBar() {
                     setResults(data.results ?? [])
                     setOpen(true)
                     setActiveIndex(-1)
-               } finally {
-                    setLoading(false)
-               }
+               } finally { setLoading(false) }
           }, 250)
           return () => clearTimeout(debounceRef.current)
      }, [query])
 
      useEffect(() => {
           function onClickOutside(e) {
-               if (containerRef.current && !containerRef.current.contains(e.target)) {
-                    setOpen(false)
-               }
+               if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
           }
           document.addEventListener('mousedown', onClickOutside)
           return () => document.removeEventListener('mousedown', onClickOutside)
      }, [])
 
-     function navigate(id) {
-          setOpen(false)
-          setQuery('')
-          router.push(`/minutes/${id}`)
-     }
+     function navigate(id) { setOpen(false); setQuery(''); router.push(`/minutes/${id}`) }
 
      function onKeyDown(e) {
           if (!open || results.length === 0) return
-          if (e.key === 'ArrowDown') {
-               e.preventDefault()
-               setActiveIndex(i => Math.min(i + 1, results.length - 1))
-          } else if (e.key === 'ArrowUp') {
-               e.preventDefault()
-               setActiveIndex(i => Math.max(i - 1, 0))
-          } else if (e.key === 'Enter' && activeIndex >= 0) {
-               e.preventDefault()
-               navigate(results[activeIndex].id)
-          } else if (e.key === 'Escape') {
-               setOpen(false)
-          }
+          if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex(i => Math.min(i + 1, results.length - 1)) }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex(i => Math.max(i - 1, 0)) }
+          else if (e.key === 'Enter' && activeIndex >= 0) { e.preventDefault(); navigate(results[activeIndex].id) }
+          else if (e.key === 'Escape') setOpen(false)
      }
 
      return (
@@ -73,12 +55,12 @@ export default function SearchBar() {
                <input
                     className={styles.input}
                     type="search"
-                    placeholder="Suche nach Titel, Inhalt oder Tag…"
+                    placeholder={t('placeholder')}
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     onKeyDown={onKeyDown}
                     onFocus={() => results.length > 0 && setOpen(true)}
-                    aria-label="Meeting Minutes durchsuchen"
+                    aria-label={t('ariaLabel')}
                     aria-autocomplete="list"
                     aria-expanded={open}
                />
@@ -97,14 +79,10 @@ export default function SearchBar() {
                                    <span className={styles.itemTitle}>{r.title}</span>
                                    <div className={styles.itemMeta}>
                                         {r.ownerName && <span>{r.ownerName}</span>}
-                                        {r.meetingDate && (
-                                             <span>{new Date(r.meetingDate).toLocaleDateString('de-DE', { dateStyle: 'short' })}</span>
-                                        )}
-                                        {r.tags?.length > 0 && (
-                                             <span className={styles.tags}>{r.tags.slice(0, 3).join(', ')}</span>
-                                        )}
+                                        {r.meetingDate && <span>{new Date(r.meetingDate).toLocaleDateString(undefined, { dateStyle: 'short' })}</span>}
+                                        {r.tags?.length > 0 && <span className={styles.tags}>{r.tags.slice(0, 3).join(', ')}</span>}
                                         <span className={`${styles.badge} ${r.visibility === 'shared' ? styles.shared : styles.private}`}>
-                                             {r.visibility === 'shared' ? 'Geteilt' : 'Privat'}
+                                             {r.visibility === 'shared' ? t('shared') : t('private')}
                                         </span>
                                    </div>
                               </li>
@@ -112,7 +90,7 @@ export default function SearchBar() {
                     </ul>
                )}
                {open && results.length === 0 && !loading && query.length >= 2 && (
-                    <div className={styles.empty}>Keine Ergebnisse</div>
+                    <div className={styles.empty}>{t('noResults')}</div>
                )}
           </div>
      )

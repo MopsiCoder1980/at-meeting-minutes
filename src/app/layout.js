@@ -1,4 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,15 +13,25 @@ const geistMono = Geist_Mono({
      subsets: ["latin"],
 });
 
-export const metadata = {
-     title: "Meeting Minutes",
-     description: "Meeting Minutes Verwaltung",
-};
+export async function generateMetadata() {
+     const messages = await getMessages()
+     return {
+          title: messages?.app?.title ?? 'Meeting Minutes',
+          description: messages?.app?.description ?? 'Meeting Minutes Verwaltung',
+     }
+}
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+     const locale = await getLocale()
+     const messages = await getMessages()
+
      return (
-          <html lang="de" className={`${geistSans.variable} ${geistMono.variable}`}>
-               <body>{children}</body>
+          <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`}>
+               <body>
+                    <NextIntlClientProvider locale={locale} messages={messages}>
+                         {children}
+                    </NextIntlClientProvider>
+               </body>
           </html>
-     );
+     )
 }

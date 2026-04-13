@@ -14,7 +14,11 @@
       "Bash(npm uninstall:*)",
       "Bash(tree C:UsersheemiCodingagentic-codingmeeting-minutes/src -L 4 -I *.module.css)",
       "Bash(find /c/Users/heemi/Coding/agentic-coding/meeting-minutes/src -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.prisma \\\\\\))",
-      "Bash(find /c/Users/heemi/Coding/agentic-coding/meeting-minutes -name schema.* -o -name *schema* -type f)"
+      "Bash(find /c/Users/heemi/Coding/agentic-coding/meeting-minutes -name schema.* -o -name *schema* -type f)",
+      "Bash(cd C:\\\\\\\\Users\\\\\\\\heemi\\\\\\\\Coding\\\\\\\\agentic-coding\\\\\\\\meeting-minutes)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

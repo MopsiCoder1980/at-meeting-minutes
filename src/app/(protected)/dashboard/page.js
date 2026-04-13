@@ -2,6 +2,7 @@ import { getAuthUser } from '@/lib/auth'
 import { getAllMinutes } from '@/lib/store'
 import { getFoldersForUser } from '@/lib/folders'
 import { getPageSize } from '@/lib/settings'
+import { getTranslations } from 'next-intl/server'
 import DraggableMinutesList from '@/components/DraggableMinutesList'
 import Pagination from '@/components/Pagination'
 import SortSelect from '@/components/SortSelect'
@@ -16,20 +17,17 @@ function toDateKey(isoString) {
      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function getDate(m) {
-     return new Date(m.meetingDate ?? m.createdAt)
-}
-
 export default async function DashboardPage({ searchParams }) {
      const { sort = 'date-desc', mine, folder, date, page } = await searchParams
      const onlyMine = mine === '1'
      const currentPage = Math.max(1, parseInt(page ?? '1', 10) || 1)
 
-     const authUser = await getAuthUser()
-     const [allMinutes, folders, pageSize] = await Promise.all([
+     const [authUser, allMinutes, folders, pageSize, t] = await Promise.all([
+          getAuthUser(),
           getAllMinutes(),
           getFoldersForUser(),
           getPageSize(),
+          getTranslations('dashboard'),
      ])
 
      const activeFolder = folders.find(f => f.id === folder) ?? null
@@ -44,32 +42,30 @@ export default async function DashboardPage({ searchParams }) {
           return false
      })
 
-     visibleMinutes.sort((a, b) =>
-          sort === 'date-asc' ? getDate(a) - getDate(b) : getDate(b) - getDate(a)
-     )
+     visibleMinutes.sort((a, b) => {
+          const da = new Date(a.meetingDate ?? a.createdAt)
+          const db = new Date(b.meetingDate ?? b.createdAt)
+          return sort === 'date-asc' ? da - db : db - da
+     })
 
      const totalPages = Math.max(1, Math.ceil(visibleMinutes.length / pageSize))
      const safePage = Math.min(currentPage, totalPages)
      const pageMinutes = visibleMinutes.slice((safePage - 1) * pageSize, safePage * pageSize)
 
-     // All dates for calendar (ignores folder/date/mine filter)
      const allVisibleForCalendar = allMinutes.filter(m => {
           if (authUser.role === 'admin') return true
           if (m.ownerId === authUser.userId) return true
-          if (m.visibility === 'shared') return true
-          return false
+          return m.visibility === 'shared'
      })
-     const minuteDates = [...new Set(
-          allVisibleForCalendar.map(m => toDateKey(m.meetingDate ?? m.createdAt)).filter(Boolean)
-     )]
+     const minuteDates = [...new Set(allVisibleForCalendar.map(m => toDateKey(m.meetingDate ?? m.createdAt)).filter(Boolean))]
 
      return (
           <div className={styles.container}>
                <div className={styles.header}>
-                    <h1>{activeFolder ? activeFolder.name : 'Übersicht'}</h1>
+                    <h1>{activeFolder ? activeFolder.name : t('overview')}</h1>
                     <p className={styles.role}>
-                         Angemeldet als <strong>{authUser.fullName}</strong>
-                         {authUser.role === 'admin' && <span className={styles.adminBadge}>Admin</span>}
+                         {t('loggedInAs')} <strong>{authUser.fullName}</strong>
+                         {authUser.role === 'admin' && <span className={styles.adminBadge}>{t('adminBadge')}</span>}
                     </p>
                </div>
                <div className={styles.toolbar}>

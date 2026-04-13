@@ -17,6 +17,21 @@ async function ensureUsersTable() {
       created_at    TEXT NOT NULL
     )
   `
+     // Migration: add locale column if missing
+     await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS locale TEXT
+  `
+}
+
+export async function getUserLocale(userId) {
+     const sql = getDb()
+     const rows = await sql`SELECT locale FROM users WHERE id = ${userId}`
+     return rows[0]?.locale ?? null
+}
+
+export async function setUserLocale(userId, locale) {
+     const sql = getDb()
+     await sql`UPDATE users SET locale = ${locale} WHERE id = ${userId}`
 }
 
 export async function getUserByUsername(username) {

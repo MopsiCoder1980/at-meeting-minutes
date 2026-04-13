@@ -1,20 +1,18 @@
 'use client'
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import styles from './MineToggle.module.css'
 
 export default function MineToggle({ active }) {
      const router = useRouter()
      const pathname = usePathname()
      const searchParams = useSearchParams()
+     const t = useTranslations('filter')
 
      function handleClick() {
           const params = new URLSearchParams(searchParams)
-          if (active) {
-               params.delete('mine')
-          } else {
-               params.set('mine', '1')
-          }
+          if (active) { params.delete('mine') } else { params.set('mine', '1') }
           router.push(`${pathname}?${params.toString()}`)
      }
 
@@ -24,7 +22,7 @@ export default function MineToggle({ active }) {
                className={`${styles.toggle} ${active ? styles.active : ''}`}
                aria-pressed={active}
           >
-               Nur meine
+               {t('onlyMine')}
           </button>
      )
 }

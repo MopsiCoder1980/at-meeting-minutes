@@ -1,16 +1,16 @@
 'use client'
 
-import { useActionState, useState, useCallback } from 'react'
+import { useActionState, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import RichTextEditor from './RichTextEditor'
 import DateTimePicker from './DateTimePicker'
 import TagInput from './TagInput'
 import styles from './MinuteForm.module.css'
 
-function ListField({ label, items, onChange }) {
+function ListField({ label, items, onChange, addLabel }) {
      function add() { onChange([...items, '']) }
      function remove(i) { onChange(items.filter((_, idx) => idx !== i)) }
      function update(i, val) { onChange(items.map((v, idx) => idx === i ? val : v)) }
-
      return (
           <div className={styles.listField}>
                <span className={styles.listLabel}>{label}</span>
@@ -20,19 +20,15 @@ function ListField({ label, items, onChange }) {
                          <button type="button" className={styles.removeBtn} onClick={() => remove(i)}>×</button>
                     </div>
                ))}
-               <button type="button" className={styles.addBtn} onClick={add}>+ Hinzufügen</button>
+               <button type="button" className={styles.addBtn} onClick={add}>{addLabel}</button>
           </div>
      )
 }
 
-function UserListField({ label, items, onChange, usernames }) {
+function UserListField({ label, items, onChange, usernames, addUserLabel }) {
      const available = usernames.filter(u => !items.includes(u))
-
-     function add(username) {
-          if (username) onChange([...items, username])
-     }
+     function add(username) { if (username) onChange([...items, username]) }
      function remove(i) { onChange(items.filter((_, idx) => idx !== i)) }
-
      return (
           <div className={styles.listField}>
                <span className={styles.listLabel}>{label}</span>
@@ -44,7 +40,7 @@ function UserListField({ label, items, onChange, usernames }) {
                ))}
                {available.length > 0 && (
                     <select className={styles.userSelect} value="" onChange={e => add(e.target.value)}>
-                         <option value="">+ User hinzufügen…</option>
+                         <option value="">{addUserLabel}</option>
                          {available.map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
                )}
@@ -52,25 +48,24 @@ function UserListField({ label, items, onChange, usernames }) {
      )
 }
 
-function ActionItemsField({ items, onChange, usernames }) {
+function ActionItemsField({ items, onChange, usernames, t }) {
      function add() { onChange([...items, { task: '', personInCharge: '', deadline: '' }]) }
      function remove(i) { onChange(items.filter((_, idx) => idx !== i)) }
      function update(i, key, val) { onChange(items.map((v, idx) => idx === i ? { ...v, [key]: val } : v)) }
-
      return (
           <div className={styles.listField}>
                {items.map((item, i) => (
                     <div key={i} className={styles.actionRow}>
-                         <input type="text" placeholder="Aufgabe" value={item.task} onChange={e => update(i, 'task', e.target.value)} className={styles.actionTask} />
+                         <input type="text" placeholder={t('task')} value={item.task} onChange={e => update(i, 'task', e.target.value)} className={styles.actionTask} />
                          <select value={item.personInCharge} onChange={e => update(i, 'personInCharge', e.target.value)} className={styles.actionPerson}>
-                              <option value="">— Person —</option>
+                              <option value="">{t('person')}</option>
                               {usernames.map(u => <option key={u} value={u}>{u}</option>)}
                          </select>
                          <input type="date" value={item.deadline} onChange={e => update(i, 'deadline', e.target.value)} className={styles.actionDeadline} />
                          <button type="button" className={styles.removeBtn} onClick={() => remove(i)}>×</button>
                     </div>
                ))}
-               <button type="button" className={styles.addBtn} onClick={add}>+ Hinzufügen</button>
+               <button type="button" className={styles.addBtn} onClick={add}>{t('addItem')}</button>
           </div>
      )
 }
@@ -78,13 +73,14 @@ function ActionItemsField({ items, onChange, usernames }) {
 export default function MinuteForm({ action, defaultValues, allTags = [], folders, allUsers = [] }) {
      const usernames = allUsers.map(u => u.username)
      const [state, formAction, pending] = useActionState(action, null)
+     const t = useTranslations('form')
 
      const def = defaultValues?.structure ?? {}
-     const defAttendees = def.attendees ?? { meetingOwners: [], agendaOwners: [], attendees: [] }
+     const defAtt = def.attendees ?? { meetingOwners: [], agendaOwners: [], attendees: [] }
 
-     const [meetingOwners, setMeetingOwners] = useState(defAttendees.meetingOwners ?? [])
-     const [agendaOwners, setAgendaOwners] = useState(defAttendees.agendaOwners ?? [])
-     const [attendees, setAttendees] = useState(defAttendees.attendees ?? [])
+     const [meetingOwners, setMeetingOwners] = useState(defAtt.meetingOwners ?? [])
+     const [agendaOwners, setAgendaOwners] = useState(defAtt.agendaOwners ?? [])
+     const [attendees, setAttendees] = useState(defAtt.attendees ?? [])
      const [topics, setTopics] = useState(def.topics ?? [])
      const [decisions, setDecisions] = useState(def.decisions ?? [])
      const [actionItems, setActionItems] = useState(def.actionItems ?? [])
@@ -92,10 +88,7 @@ export default function MinuteForm({ action, defaultValues, allTags = [], folder
 
      const structure = JSON.stringify({
           attendees: { meetingOwners, agendaOwners, attendees },
-          topics,
-          decisions,
-          actionItems,
-          openQuestions,
+          topics, decisions, actionItems, openQuestions,
      })
 
      return (
@@ -103,101 +96,82 @@ export default function MinuteForm({ action, defaultValues, allTags = [], folder
                {state?.error && <p className={styles.error}>{state.error}</p>}
 
                <div className={styles.field}>
-                    <label htmlFor="projectTitle">Projekttitel</label>
-                    <input
-                         id="projectTitle"
-                         name="projectTitle"
-                         type="text"
-                         defaultValue={defaultValues?.projectTitle ?? ''}
-                         required
-                         placeholder="Projekttitel"
-                    />
+                    <label htmlFor="projectTitle">{t('projectTitle')}</label>
+                    <input id="projectTitle" name="projectTitle" type="text" defaultValue={defaultValues?.projectTitle ?? ''} required placeholder={t('projectTitle')} />
                </div>
 
                <div className={styles.field}>
-                    <label htmlFor="title">Meeting-Titel</label>
-                    <input
-                         id="title"
-                         name="title"
-                         type="text"
-                         defaultValue={defaultValues?.title ?? ''}
-                         required
-                         placeholder="Meeting-Titel"
-                    />
+                    <label htmlFor="title">{t('title')}</label>
+                    <input id="title" name="title" type="text" defaultValue={defaultValues?.title ?? ''} required placeholder={t('title')} />
                </div>
 
                <div className={styles.field}>
-                    <label>Datum &amp; Uhrzeit</label>
+                    <label>{t('dateTime')}</label>
                     <DateTimePicker name="meetingDate" defaultValue={defaultValues?.meetingDate ?? ''} />
                </div>
 
                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Teilnehmer</h3>
-                    <UserListField label="Meeting Owner(s)" items={meetingOwners} onChange={setMeetingOwners} usernames={usernames} />
-                    <UserListField label="Agenda Owner(s)" items={agendaOwners} onChange={setAgendaOwners} usernames={usernames} />
-                    <UserListField label="Teilnehmer" items={attendees} onChange={setAttendees} usernames={usernames} />
+                    <h3 className={styles.sectionTitle}>{t('attendees')}</h3>
+                    <UserListField label={t('meetingOwners')} items={meetingOwners} onChange={setMeetingOwners} usernames={usernames} addUserLabel={t('addUser')} />
+                    <UserListField label={t('agendaOwners')} items={agendaOwners} onChange={setAgendaOwners} usernames={usernames} addUserLabel={t('addUser')} />
+                    <UserListField label={t('attendees')} items={attendees} onChange={setAttendees} usernames={usernames} addUserLabel={t('addUser')} />
                </div>
 
                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Themen</h3>
-                    <ListField label="" items={topics} onChange={setTopics} />
+                    <h3 className={styles.sectionTitle}>{t('topics')}</h3>
+                    <ListField label="" items={topics} onChange={setTopics} addLabel={t('addItem')} />
                </div>
 
                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Entscheidungen</h3>
-                    <ListField label="" items={decisions} onChange={setDecisions} />
+                    <h3 className={styles.sectionTitle}>{t('decisions')}</h3>
+                    <ListField label="" items={decisions} onChange={setDecisions} addLabel={t('addItem')} />
                </div>
 
                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Action Items</h3>
+                    <h3 className={styles.sectionTitle}>{t('actionItems')}</h3>
                     <div className={styles.actionHeader}>
-                         <span>Aufgabe</span><span>Verantwortlich</span><span>Deadline</span>
+                         <span>{t('task')}</span><span>{t('responsible')}</span><span>{t('deadline')}</span>
                     </div>
-                    <ActionItemsField items={actionItems} onChange={setActionItems} usernames={usernames} />
+                    <ActionItemsField items={actionItems} onChange={setActionItems} usernames={usernames} t={t} />
                </div>
 
                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Offene Fragen</h3>
-                    <ListField label="" items={openQuestions} onChange={setOpenQuestions} />
+                    <h3 className={styles.sectionTitle}>{t('openQuestions')}</h3>
+                    <ListField label="" items={openQuestions} onChange={setOpenQuestions} addLabel={t('addItem')} />
                </div>
 
                <input type="hidden" name="structure" value={structure} />
 
                <div className={styles.field}>
-                    <label>Tags</label>
+                    <label>{t('tags')}</label>
                     <TagInput name="tags" defaultValue={defaultValues?.tags ?? []} suggestions={allTags} />
                </div>
 
                <div className={styles.field}>
-                    <label htmlFor="visibility">Sichtbarkeit</label>
+                    <label htmlFor="visibility">{t('visibility')}</label>
                     <select id="visibility" name="visibility" defaultValue={defaultValues?.visibility ?? 'private'}>
-                         <option value="private">Privat (nur ich)</option>
-                         <option value="shared">Geteilt (alle Benutzer)</option>
+                         <option value="private">{t('private')}</option>
+                         <option value="shared">{t('shared')}</option>
                     </select>
                </div>
 
                {folders && (
                     <div className={styles.field}>
-                         <label htmlFor="folderId">Ordner</label>
+                         <label htmlFor="folderId">{t('folder')}</label>
                          <select id="folderId" name="folderId" defaultValue={defaultValues?.folderId ?? ''}>
-                              <option value="">— Kein Ordner —</option>
-                              {folders.map(f => (
-                                   <option key={f.id} value={f.id}>{f.name}</option>
-                              ))}
+                              <option value="">{t('noFolder')}</option>
+                              {folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                          </select>
                     </div>
                )}
 
                <div className={styles.field}>
-                    <label>Notizen</label>
-                    <RichTextEditor
-                         name="content"
-                         initialContent={defaultValues?.content ?? ''}
-                    />
+                    <label>{t('notes')}</label>
+                    <RichTextEditor name="content" initialContent={defaultValues?.content ?? ''} />
                </div>
 
                <button type="submit" disabled={pending} className={styles.submit}>
-                    {pending ? 'Wird gespeichert...' : 'Speichern'}
+                    {pending ? t('saving') : t('save')}
                </button>
           </form>
      )
