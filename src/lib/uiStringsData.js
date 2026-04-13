@@ -145,6 +145,8 @@ export const DEFAULT_STRINGS = {
      'minute.sectionNotes': 'Notizen',
      'minute.sectionAttachments': 'Dateianhänge',
      'minute.attachmentDownload': 'Herunterladen',
+     'minute.exportPdf': 'Export PDF',
+     'minute.attachedToPdf': 'Als Anhang beigefügt',
      'minute.meetingOwners': 'Meeting Owner(s)',
      'minute.agendaOwners': 'Agenda Owner(s)',
      'minute.attendees': 'Teilnehmer',
@@ -276,7 +278,7 @@ export const STRING_GROUPS = [
      },
      {
           label: 'Meeting-Detailansicht',
-          keys: ['minute.shared', 'minute.private', 'minute.edit', 'minute.delete', 'minute.confirmDelete', 'minute.back', 'minute.lastEdited', 'minute.sectionAttendees', 'minute.sectionTopics', 'minute.sectionDecisions', 'minute.sectionActionItems', 'minute.sectionOpenQuestions', 'minute.sectionNotes', 'minute.sectionAttachments', 'minute.attachmentDownload', 'minute.meetingOwners', 'minute.agendaOwners', 'minute.attendees', 'minute.actionTask', 'minute.actionResponsible', 'minute.actionDeadline'],
+          keys: ['minute.shared', 'minute.private', 'minute.edit', 'minute.delete', 'minute.confirmDelete', 'minute.back', 'minute.lastEdited', 'minute.exportPdf', 'minute.attachedToPdf', 'minute.sectionAttendees', 'minute.sectionTopics', 'minute.sectionDecisions', 'minute.sectionActionItems', 'minute.sectionOpenQuestions', 'minute.sectionNotes', 'minute.sectionAttachments', 'minute.attachmentDownload', 'minute.meetingOwners', 'minute.agendaOwners', 'minute.attendees', 'minute.actionTask', 'minute.actionResponsible', 'minute.actionDeadline'],
      },
      {
           label: 'Optionen-Seite',

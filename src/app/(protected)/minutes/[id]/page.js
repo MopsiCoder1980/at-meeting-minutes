@@ -59,23 +59,26 @@ export default async function MinutePage({ params }) {
                     </div>
                     <div className={styles.actions}>
                          {canEdit(authUser, minute) && <Link href={`/minutes/${id}/edit`} className={styles.editBtn}>{t('edit')}</Link>}
+                         <a href={`/api/minutes/${id}/pdf`} download className={styles.editBtn}>{t('exportPdf')}</a>
                          {canDelete(authUser, minute) && <DeleteButton id={id} />}
                     </div>
                </div>
 
-               <Section title={t('sectionAttendees')}>
-                    <div className={styles.attendees}>
-                         <div><p className={styles.attendeeGroup}>{t('meetingOwners')}</p><BulletList items={att.meetingOwners} /></div>
-                         <div><p className={styles.attendeeGroup}>{t('agendaOwners')}</p><BulletList items={att.agendaOwners} /></div>
-                         <div><p className={styles.attendeeGroup}>{t('attendees')}</p><BulletList items={att.attendees} /></div>
-                    </div>
-               </Section>
+               {(att.meetingOwners?.length > 0 || att.agendaOwners?.length > 0 || att.attendees?.length > 0) && (
+                    <Section title={t('sectionAttendees')}>
+                         <div className={styles.attendees}>
+                              {att.meetingOwners?.length > 0 && <div><p className={styles.attendeeGroup}>{t('meetingOwners')}</p><BulletList items={att.meetingOwners} /></div>}
+                              {att.agendaOwners?.length > 0 && <div><p className={styles.attendeeGroup}>{t('agendaOwners')}</p><BulletList items={att.agendaOwners} /></div>}
+                              {att.attendees?.length > 0 && <div><p className={styles.attendeeGroup}>{t('attendees')}</p><BulletList items={att.attendees} /></div>}
+                         </div>
+                    </Section>
+               )}
 
-               <Section title={t('sectionTopics')}><BulletList items={s.topics} /></Section>
-               <Section title={t('sectionDecisions')}><BulletList items={s.decisions} /></Section>
+               {s.topics?.length > 0 && <Section title={t('sectionTopics')}><BulletList items={s.topics} /></Section>}
+               {s.decisions?.length > 0 && <Section title={t('sectionDecisions')}><BulletList items={s.decisions} /></Section>}
 
-               <Section title={t('sectionActionItems')}>
-                    {s.actionItems?.length ? (
+               {s.actionItems?.length > 0 && (
+                    <Section title={t('sectionActionItems')}>
                          <table className={styles.table}>
                               <thead><tr><th>{t('actionTask')}</th><th>{t('actionResponsible')}</th><th>{t('actionDeadline')}</th></tr></thead>
                               <tbody>
@@ -88,10 +91,10 @@ export default async function MinutePage({ params }) {
                                    ))}
                               </tbody>
                          </table>
-                    ) : <p className={styles.empty}>—</p>}
-               </Section>
+                    </Section>
+               )}
 
-               <Section title={t('sectionOpenQuestions')}><BulletList items={s.openQuestions} /></Section>
+               {s.openQuestions?.length > 0 && <Section title={t('sectionOpenQuestions')}><BulletList items={s.openQuestions} /></Section>}
 
                {minute.content && (
                     <Section title={t('sectionNotes')}>
