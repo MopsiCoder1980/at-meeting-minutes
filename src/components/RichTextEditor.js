@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -36,6 +36,9 @@ function Sep() {
 
 export default function RichTextEditor({ initialContent, name }) {
      const hiddenRef = useRef(null)
+     const [tablePopover, setTablePopover] = useState(false)
+     const [tableRows, setTableRows] = useState(3)
+     const [tableCols, setTableCols] = useState(3)
 
      const editor = useEditor({
           extensions: [
@@ -131,9 +134,42 @@ export default function RichTextEditor({ initialContent, name }) {
 
                     {/* Einfügen */}
                     <div className={styles.group}>
-                         <Btn title="Tabelle einfügen" onClick={() => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>
-                              <TableIcon size={15} strokeWidth={2} />
-                         </Btn>
+                         <div className={styles.tablePopoverWrap}>
+                              <Btn title="Tabelle einfügen" active={tablePopover} onClick={() => setTablePopover(v => !v)}>
+                                   <TableIcon size={15} strokeWidth={2} />
+                              </Btn>
+                              {tablePopover && (
+                                   <div className={styles.tablePopover}>
+                                        <label className={styles.tablePopoverLabel}>
+                                             Zeilen
+                                             <input
+                                                  type="number" min={1} max={20} value={tableRows}
+                                                  onChange={e => setTableRows(Math.max(1, Math.min(20, Number(e.target.value))))}
+                                                  className={styles.tablePopoverInput}
+                                             />
+                                        </label>
+                                        <label className={styles.tablePopoverLabel}>
+                                             Spalten
+                                             <input
+                                                  type="number" min={1} max={20} value={tableCols}
+                                                  onChange={e => setTableCols(Math.max(1, Math.min(20, Number(e.target.value))))}
+                                                  className={styles.tablePopoverInput}
+                                             />
+                                        </label>
+                                        <button
+                                             type="button"
+                                             className={styles.tablePopoverInsert}
+                                             onMouseDown={(ev) => {
+                                                  ev.preventDefault()
+                                                  e.chain().focus().insertTable({ rows: tableRows, cols: tableCols, withHeaderRow: true }).run()
+                                                  setTablePopover(false)
+                                             }}
+                                        >
+                                             Einfügen
+                                        </button>
+                                   </div>
+                              )}
+                         </div>
                          <Btn title="Trennlinie einfügen" onClick={() => e.chain().focus().setHorizontalRule().run()}>
                               <Minus size={15} strokeWidth={2} />
                          </Btn>

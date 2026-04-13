@@ -81,6 +81,61 @@
      cursor: default;
 }
 
+/* ── Table popover ───────────────────────────────────────── */
+.tablePopoverWrap {
+     position: relative;
+}
+
+.tablePopover {
+     position: absolute;
+     top: calc(100% + 4px);
+     left: 0;
+     z-index: 100;
+     background: #fff;
+     border: 1px solid #c8c8c8;
+     border-radius: 4px;
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+     padding: 10px 12px;
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+     min-width: 130px;
+}
+
+.tablePopoverLabel {
+     display: flex;
+     flex-direction: column;
+     gap: 3px;
+     font-size: 0.78rem;
+     color: #555;
+     font-weight: 500;
+}
+
+.tablePopoverInput {
+     width: 100%;
+     padding: 3px 6px;
+     border: 1px solid #bfc5cc;
+     border-radius: 3px;
+     font-size: 0.88rem;
+     text-align: center;
+}
+
+.tablePopoverInsert {
+     margin-top: 2px;
+     padding: 5px 0;
+     background: #4a90d9;
+     color: #fff;
+     border: none;
+     border-radius: 3px;
+     font-size: 0.82rem;
+     cursor: pointer;
+     font-weight: 600;
+}
+
+.tablePopoverInsert:hover {
+     background: #357abd;
+}
+
 /* ── Editor content area ─────────────────────────────────── */
 .editorWrap {
      flex: 1;
