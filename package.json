@@ -18,6 +18,7 @@
     "@tiptap/react": "^3.20.4",
     "@tiptap/starter-kit": "^3.20.4",
     "bcryptjs": "^3.0.3",
+    "htmlparser2": "^12.0.0",
     "jose": "^6.2.2",
     "lucide-react": "^1.0.1",
     "next": "16.2.1",

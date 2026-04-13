@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { readFile } from 'fs/promises'
 import path from 'path'
 import sanitizeHtml from 'sanitize-html'
+import { parseDocument, DomUtils } from 'htmlparser2'
 import {
      Document, Page, Text, View, Image, StyleSheet, renderToBuffer, Font,
 } from '@react-pdf/renderer'
@@ -16,6 +17,201 @@ const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
 function stripHtml(html) {
      return sanitizeHtml(html ?? '', { allowedTags: [], allowedAttributes: {} }).trim()
+}
+
+// ── HTML → react-pdf renderer ────────────────────────────────────────────────
+
+const htmlStyles = StyleSheet.create({
+     p: { marginBottom: 6, fontSize: 10, lineHeight: 1.6, color: '#374151' },
+     h1: { fontSize: 16, fontFamily: 'Helvetica-Bold', marginBottom: 6, marginTop: 10, color: '#111827' },
+     h2: { fontSize: 14, fontFamily: 'Helvetica-Bold', marginBottom: 5, marginTop: 8, color: '#111827' },
+     h3: { fontSize: 12, fontFamily: 'Helvetica-Bold', marginBottom: 4, marginTop: 6, color: '#111827' },
+     h4: { fontSize: 11, fontFamily: 'Helvetica-Bold', marginBottom: 4, marginTop: 6, color: '#374151' },
+     ul: { marginBottom: 6, paddingLeft: 0 },
+     ol: { marginBottom: 6, paddingLeft: 0 },
+     li: { flexDirection: 'row', marginBottom: 3 },
+     liBullet: { width: 14, fontSize: 10, color: '#374151' },
+     liContent: { flex: 1, fontSize: 10, lineHeight: 1.5, color: '#374151' },
+     strong: { fontFamily: 'Helvetica-Bold' },
+     em: { fontFamily: 'Helvetica-Oblique' },
+     blockquote: { marginLeft: 10, paddingLeft: 8, borderLeft: '3 solid #d1d5db', color: '#6b7280', marginBottom: 6 },
+     pre: { fontFamily: 'Courier', fontSize: 9, backgroundColor: '#f3f4f6', padding: 8, marginBottom: 6, color: '#111827' },
+     code: { fontFamily: 'Courier', fontSize: 9, backgroundColor: '#f3f4f6', color: '#111827' },
+     hr: { borderBottom: '1 solid #e5e7eb', marginVertical: 8 },
+     table: { marginBottom: 8 },
+     tableHeaderRow: { flexDirection: 'row', backgroundColor: '#f9fafb', borderBottom: '1 solid #e5e7eb' },
+     tableRow: { flexDirection: 'row', borderBottom: '1 solid #f3f4f6' },
+     tableCell: { flex: 1, fontSize: 9, paddingVertical: 4, paddingHorizontal: 6, color: '#374151' },
+     tableCellHead: { flex: 1, fontSize: 9, fontFamily: 'Helvetica-Bold', paddingVertical: 4, paddingHorizontal: 6, color: '#111827' },
+})
+
+function getTextContent(node) {
+     if (!node) return ''
+     if (node.type === 'text') return node.data ?? ''
+     if (node.children) return node.children.map(getTextContent).join('')
+     return ''
+}
+
+function renderInlineNodes(nodes, parentStyle = {}) {
+     if (!nodes?.length) return null
+     return nodes.map((node, i) => {
+          if (node.type === 'text') {
+               const text = node.data ?? ''
+               if (!text) return null
+               return <Text key={i} style={parentStyle}>{text}</Text>
+          }
+          if (node.type !== 'tag') return null
+          const tag = node.name?.toLowerCase()
+          if (tag === 'strong' || tag === 'b') {
+               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Helvetica-Bold' }}>{getTextContent(node)}</Text>
+          }
+          if (tag === 'em' || tag === 'i') {
+               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Helvetica-Oblique' }}>{getTextContent(node)}</Text>
+          }
+          if (tag === 'code') {
+               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Courier', fontSize: 9 }}>{getTextContent(node)}</Text>
+          }
+          if (tag === 'br') {
+               return <Text key={i}>{'\n'}</Text>
+          }
+          // For any other inline tag, recurse
+          return <Text key={i} style={parentStyle}>{getTextContent(node)}</Text>
+     }).filter(Boolean)
+}
+
+function renderHtmlNodes(nodes, depth = 0) {
+     if (!nodes?.length) return null
+     return nodes.map((node, i) => {
+          if (node.type === 'text') {
+               const text = (node.data ?? '').replace(/\s+/g, ' ')
+               if (!text.trim()) return null
+               return <Text key={i} style={htmlStyles.p}>{text}</Text>
+          }
+          if (node.type !== 'tag') return null
+          const tag = node.name?.toLowerCase()
+
+          if (tag === 'p') {
+               const children = node.children ?? []
+               // Check if purely text/inline
+               return (
+                    <View key={i} style={htmlStyles.p}>
+                         <Text>{renderInlineNodes(children, {})}</Text>
+                    </View>
+               )
+          }
+
+          if (tag === 'h1') return <Text key={i} style={htmlStyles.h1}>{getTextContent(node)}</Text>
+          if (tag === 'h2') return <Text key={i} style={htmlStyles.h2}>{getTextContent(node)}</Text>
+          if (tag === 'h3') return <Text key={i} style={htmlStyles.h3}>{getTextContent(node)}</Text>
+          if (['h4', 'h5', 'h6'].includes(tag)) return <Text key={i} style={htmlStyles.h4}>{getTextContent(node)}</Text>
+
+          if (tag === 'ul' || tag === 'ol') {
+               const items = (node.children ?? []).filter(c => c.type === 'tag' && c.name === 'li')
+               return (
+                    <View key={i} style={tag === 'ul' ? htmlStyles.ul : htmlStyles.ol}>
+                         {items.map((li, j) => {
+                              const bullet = tag === 'ol' ? `${j + 1}.` : '•'
+                              const hasNestedList = (li.children ?? []).some(c => c.type === 'tag' && (c.name === 'ul' || c.name === 'ol'))
+                              const inlineChildren = (li.children ?? []).filter(c => !(c.type === 'tag' && (c.name === 'ul' || c.name === 'ol')))
+                              const nestedLists = (li.children ?? []).filter(c => c.type === 'tag' && (c.name === 'ul' || c.name === 'ol'))
+                              return (
+                                   <View key={j}>
+                                        <View style={[htmlStyles.li, depth > 0 ? { paddingLeft: 12 } : {}]}>
+                                             <Text style={htmlStyles.liBullet}>{bullet}</Text>
+                                             <View style={htmlStyles.liContent}>
+                                                  <Text>{renderInlineNodes(inlineChildren, {})}</Text>
+                                             </View>
+                                        </View>
+                                        {hasNestedList && (
+                                             <View style={{ paddingLeft: 14 }}>
+                                                  {renderHtmlNodes(nestedLists, depth + 1)}
+                                             </View>
+                                        )}
+                                   </View>
+                              )
+                         })}
+                    </View>
+               )
+          }
+
+          if (tag === 'blockquote') {
+               return (
+                    <View key={i} style={htmlStyles.blockquote}>
+                         {renderHtmlNodes(node.children, depth)}
+                    </View>
+               )
+          }
+
+          if (tag === 'pre') {
+               return <Text key={i} style={htmlStyles.pre}>{getTextContent(node)}</Text>
+          }
+
+          if (tag === 'hr') {
+               return <View key={i} style={htmlStyles.hr} />
+          }
+
+          if (tag === 'br') {
+               return <Text key={i}>{'\n'}</Text>
+          }
+
+          if (tag === 'table') {
+               const rows = []
+               function collectRows(n) {
+                    if (!n.children) return
+                    for (const c of n.children) {
+                         if (c.type === 'tag' && c.name === 'tr') rows.push(c)
+                         else collectRows(c)
+                    }
+               }
+               collectRows(node)
+
+               return (
+                    <View key={i} style={htmlStyles.table}>
+                         {rows.map((row, ri) => {
+                              const cells = (row.children ?? []).filter(c => c.type === 'tag' && (c.name === 'td' || c.name === 'th'))
+                              const isHeader = cells.some(c => c.name === 'th')
+                              return (
+                                   <View key={ri} style={isHeader ? htmlStyles.tableHeaderRow : htmlStyles.tableRow}>
+                                        {cells.map((cell, ci) => (
+                                             <Text key={ci} style={isHeader ? htmlStyles.tableCellHead : htmlStyles.tableCell}>
+                                                  {getTextContent(cell)}
+                                             </Text>
+                                        ))}
+                                   </View>
+                              )
+                         })}
+                    </View>
+               )
+          }
+
+          // strong/em/code at block level — wrap in a paragraph
+          if (['strong', 'b', 'em', 'i', 'code'].includes(tag)) {
+               return (
+                    <View key={i} style={htmlStyles.p}>
+                         <Text>{renderInlineNodes([node], {})}</Text>
+                    </View>
+               )
+          }
+
+          // div, section, article, etc. — recurse
+          if (node.children?.length) {
+               return <View key={i}>{renderHtmlNodes(node.children, depth)}</View>
+          }
+
+          return null
+     }).filter(Boolean)
+}
+
+function HtmlContent({ html }) {
+     if (!html?.trim()) return null
+     const clean = sanitizeHtml(html, {
+          allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'ul', 'ol', 'li',
+               'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code',
+               'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'div', 'span'],
+          allowedAttributes: {},
+     })
+     const dom = parseDocument(clean)
+     return <View>{renderHtmlNodes(dom.children)}</View>
 }
 
 function formatDate(dateStr, locale) {
@@ -68,7 +264,6 @@ function BulletList({ items }) {
 function MinutePDF({ minute, imageDataMap, strings, locale }) {
      const s = minute.structure ?? {}
      const att = s.attendees ?? {}
-     const notesText = stripHtml(minute.content)
      const imageAttachments = (minute.attachments ?? []).filter(a => IMAGE_TYPES.includes(a.type))
      const otherAttachments = (minute.attachments ?? []).filter(a => !IMAGE_TYPES.includes(a.type))
 
@@ -152,10 +347,10 @@ function MinutePDF({ minute, imageDataMap, strings, locale }) {
                     )}
 
                     {/* Notes */}
-                    {notesText && (
+                    {minute.content?.trim() && (
                          <>
                               <Text style={styles.sectionTitle}>{strings['minute.sectionNotes'] ?? 'Notizen'}</Text>
-                              <Text style={styles.notes}>{notesText}</Text>
+                              <HtmlContent html={minute.content} />
                          </>
                     )}
 
