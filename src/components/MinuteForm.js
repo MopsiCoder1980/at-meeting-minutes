@@ -85,6 +85,7 @@ export default function MinuteForm({ action, defaultValues, allTags = [], folder
      const [decisions, setDecisions] = useState(def.decisions ?? [])
      const [actionItems, setActionItems] = useState(def.actionItems ?? [])
      const [openQuestions, setOpenQuestions] = useState(def.openQuestions ?? [])
+     const [keptAttachments, setKeptAttachments] = useState(defaultValues?.attachments ?? [])
 
      const structure = JSON.stringify({
           attendees: { meetingOwners, agendaOwners, attendees },
@@ -168,6 +169,33 @@ export default function MinuteForm({ action, defaultValues, allTags = [], folder
                <div className={styles.field}>
                     <label>{t('notes')}</label>
                     <RichTextEditor name="content" initialContent={defaultValues?.content ?? ''} />
+               </div>
+
+               <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>{t('attachments')}</h3>
+                    {keptAttachments.length > 0 && (
+                         <div className={styles.attachmentList}>
+                              {keptAttachments.map((att, i) => (
+                                   <div key={i} className={styles.attachmentRow}>
+                                        <span className={styles.attachmentName} title={att.name}>{att.name}</span>
+                                        <button
+                                             type="button"
+                                             className={styles.removeBtn}
+                                             onClick={() => setKeptAttachments(keptAttachments.filter((_, idx) => idx !== i))}
+                                        >×</button>
+                                   </div>
+                              ))}
+                         </div>
+                    )}
+                    <input
+                         type="file"
+                         name="attachments"
+                         multiple
+                         accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                         className={styles.fileInput}
+                    />
+                    <span className={styles.fileHint}>{t('attachmentsHint')}</span>
+                    <input type="hidden" name="attachmentsKept" value={JSON.stringify(keptAttachments)} />
                </div>
 
                <button type="submit" disabled={pending} className={styles.submit}>

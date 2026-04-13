@@ -110,6 +110,9 @@ export const DEFAULT_STRINGS = {
      'form.noFolder': '— Kein Ordner —',
      'form.person': '— Person —',
      'form.tags': 'Tags',
+     'form.attachments': 'Dateianhänge',
+     'form.attachmentsHint': 'Bilder, PDF oder Office-Dateien',
+     'form.attachmentsRemove': 'Entfernen',
      'form.save': 'Speichern',
      'form.saving': 'Wird gespeichert...',
 
@@ -140,6 +143,8 @@ export const DEFAULT_STRINGS = {
      'minute.sectionActionItems': 'Action Items',
      'minute.sectionOpenQuestions': 'Offene Fragen',
      'minute.sectionNotes': 'Notizen',
+     'minute.sectionAttachments': 'Dateianhänge',
+     'minute.attachmentDownload': 'Herunterladen',
      'minute.meetingOwners': 'Meeting Owner(s)',
      'minute.agendaOwners': 'Agenda Owner(s)',
      'minute.attendees': 'Teilnehmer',
@@ -263,7 +268,7 @@ export const STRING_GROUPS = [
      },
      {
           label: 'Meeting-Formular',
-          keys: ['form.newMeeting', 'form.editMeeting', 'form.cancel', 'form.projectTitle', 'form.title', 'form.dateTime', 'form.attendees', 'form.meetingOwners', 'form.agendaOwners', 'form.topics', 'form.decisions', 'form.actionItems', 'form.openQuestions', 'form.task', 'form.responsible', 'form.deadline', 'form.addUser', 'form.addItem', 'form.notes', 'form.visibility', 'form.private', 'form.shared', 'form.folder', 'form.noFolder', 'form.person', 'form.tags', 'form.save', 'form.saving'],
+          keys: ['form.newMeeting', 'form.editMeeting', 'form.cancel', 'form.projectTitle', 'form.title', 'form.dateTime', 'form.attendees', 'form.meetingOwners', 'form.agendaOwners', 'form.topics', 'form.decisions', 'form.actionItems', 'form.openQuestions', 'form.task', 'form.responsible', 'form.deadline', 'form.addUser', 'form.addItem', 'form.notes', 'form.attachments', 'form.attachmentsHint', 'form.attachmentsRemove', 'form.visibility', 'form.private', 'form.shared', 'form.folder', 'form.noFolder', 'form.person', 'form.tags', 'form.save', 'form.saving'],
      },
      {
           label: 'Meeting-Liste',
@@ -271,7 +276,7 @@ export const STRING_GROUPS = [
      },
      {
           label: 'Meeting-Detailansicht',
-          keys: ['minute.shared', 'minute.private', 'minute.edit', 'minute.delete', 'minute.confirmDelete', 'minute.back', 'minute.lastEdited', 'minute.sectionAttendees', 'minute.sectionTopics', 'minute.sectionDecisions', 'minute.sectionActionItems', 'minute.sectionOpenQuestions', 'minute.sectionNotes', 'minute.meetingOwners', 'minute.agendaOwners', 'minute.attendees', 'minute.actionTask', 'minute.actionResponsible', 'minute.actionDeadline'],
+          keys: ['minute.shared', 'minute.private', 'minute.edit', 'minute.delete', 'minute.confirmDelete', 'minute.back', 'minute.lastEdited', 'minute.sectionAttendees', 'minute.sectionTopics', 'minute.sectionDecisions', 'minute.sectionActionItems', 'minute.sectionOpenQuestions', 'minute.sectionNotes', 'minute.sectionAttachments', 'minute.attachmentDownload', 'minute.meetingOwners', 'minute.agendaOwners', 'minute.attendees', 'minute.actionTask', 'minute.actionResponsible', 'minute.actionDeadline'],
      },
      {
           label: 'Optionen-Seite',

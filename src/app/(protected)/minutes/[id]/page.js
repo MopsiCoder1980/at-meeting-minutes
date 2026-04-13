@@ -99,6 +99,23 @@ export default async function MinutePage({ params }) {
                     </Section>
                )}
 
+               {minute.attachments?.length > 0 && (
+                    <Section title={t('sectionAttachments')}>
+                         <ul className={styles.attachmentList}>
+                              {minute.attachments.map((att, i) => (
+                                   <li key={i} className={styles.attachmentItem}>
+                                        <a href={att.url} download={att.name} className={styles.attachmentLink}>
+                                             {att.name}
+                                        </a>
+                                        <span className={styles.attachmentMeta}>
+                                             {att.type?.split('/')[1]?.toUpperCase()} · {att.size ? `${Math.round(att.size / 1024)} KB` : ''}
+                                        </span>
+                                   </li>
+                              ))}
+                         </ul>
+                    </Section>
+               )}
+
                <div className={styles.footer}>
                     <Link href="/dashboard">{t('back')}</Link>
                     {minute.updatedAt !== minute.createdAt && (

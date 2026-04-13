@@ -193,3 +193,39 @@
      border-color: #111;
      color: #111;
 }
+
+.attachmentList {
+     display: flex;
+     flex-direction: column;
+     gap: 0.35rem;
+     margin-bottom: 0.5rem;
+}
+
+.attachmentRow {
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     background: #f9fafb;
+     border: 1px solid #e5e7eb;
+     border-radius: 6px;
+     padding: 0.35rem 0.65rem;
+}
+
+.attachmentName {
+     flex: 1;
+     font-size: 0.9rem;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+}
+
+.fileInput {
+     font-size: 0.9rem;
+     font-family: inherit;
+     color: var(--foreground);
+}
+
+.fileHint {
+     font-size: 0.8rem;
+     color: #9ca3af;
+}
