@@ -18,7 +18,8 @@
       "Bash(cd C:\\\\\\\\Users\\\\\\\\heemi\\\\\\\\Coding\\\\\\\\agentic-coding\\\\\\\\meeting-minutes)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm ci:*)"
     ]
   }
 }
