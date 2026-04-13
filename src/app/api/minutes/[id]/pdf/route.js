@@ -197,9 +197,11 @@ function MinutePDF({ minute, imageDataMap, strings, locale }) {
      )
 }
 
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads')
+
 async function loadImageData(att) {
      try {
-          const filePath = path.join(process.cwd(), 'public', att.url.replace(/^\//, ''))
+          const filePath = path.join(UPLOAD_DIR, att.url.replace(/^\/api\/uploads\//, ''))
           const buffer = await readFile(filePath)
           const base64 = buffer.toString('base64')
           const mime = att.type === 'image/jpeg' ? 'image/jpeg' : att.type === 'image/png' ? 'image/png' : 'image/jpeg'
@@ -236,7 +238,7 @@ export async function GET(request, { params }) {
           const pdfDoc = await PDFDocument.load(pdfBuffer)
           await Promise.all(otherAttachments.map(async (att) => {
                try {
-                    const filePath = path.join(process.cwd(), 'public', att.url.replace(/^\//, ''))
+                    const filePath = path.join(UPLOAD_DIR, att.url.replace(/^\/api\/uploads\//, ''))
                     const fileBuffer = await readFile(filePath)
                     await pdfDoc.attach(fileBuffer, att.name, {
                          mimeType: att.type ?? 'application/octet-stream',

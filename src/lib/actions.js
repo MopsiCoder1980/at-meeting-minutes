@@ -9,7 +9,7 @@ import { getTranslations } from 'next-intl/server'
 import { writeFile, mkdir, rm } from 'fs/promises'
 import path from 'path'
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads')
 const ALLOWED_TYPES = [
      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
      'application/pdf',
@@ -34,7 +34,7 @@ async function handleFileUploads(formData, minuteId, existingAttachments = []) {
      const removed = existingAttachments.filter(a => !keptUrls.has(a.url))
      await Promise.all(removed.map(async (a) => {
           try {
-               const filePath = path.join(process.cwd(), 'public', a.url.replace(/^\//, ''))
+               const filePath = path.join(UPLOAD_DIR, a.url.replace(/^\/api\/uploads\//, ''))
                await rm(filePath, { force: true })
           } catch { /* ignore */ }
      }))
@@ -50,7 +50,7 @@ async function handleFileUploads(formData, minuteId, existingAttachments = []) {
           const unique = `${Date.now()}_${safeName}`
           const buffer = Buffer.from(await file.arrayBuffer())
           await writeFile(path.join(dir, unique), buffer)
-          return { name: file.name, url: `/uploads/${minuteId}/${unique}`, size: file.size, type: file.type }
+          return { name: file.name, url: `/api/uploads/${minuteId}/${unique}`, size: file.size, type: file.type }
      }))
 
      return [...kept, ...newAttachments.filter(Boolean)]
@@ -59,6 +59,7 @@ async function handleFileUploads(formData, minuteId, existingAttachments = []) {
 async function cleanupUploads(minuteId) {
      try { await rm(path.join(UPLOAD_DIR, String(minuteId)), { recursive: true, force: true }) } catch { /* ignore */ }
 }
+
 
 const ALLOWED_HTML = {
      allowedTags: [
