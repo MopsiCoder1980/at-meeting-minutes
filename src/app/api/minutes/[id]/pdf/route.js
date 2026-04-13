@@ -71,6 +71,9 @@ function renderInlineNodes(nodes, parentStyle = {}) {
           if (tag === 'code') {
                return <Text key={i} style={{ ...parentStyle, fontFamily: 'Courier', fontSize: 9 }}>{getTextContent(node)}</Text>
           }
+          if (tag === 's' || tag === 'strike' || tag === 'del') {
+               return <Text key={i} style={{ ...parentStyle, textDecoration: 'line-through' }}>{getTextContent(node)}</Text>
+          }
           if (tag === 'br') {
                return <Text key={i}>{'\n'}</Text>
           }
@@ -205,7 +208,7 @@ function renderHtmlNodes(nodes, depth = 0) {
 function HtmlContent({ html }) {
      if (!html?.trim()) return null
      const clean = sanitizeHtml(html, {
-          allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'ul', 'ol', 'li',
+          allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 's', 'strike', 'del', 'ul', 'ol', 'li',
                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code',
                'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'div', 'span'],
           allowedAttributes: {},
