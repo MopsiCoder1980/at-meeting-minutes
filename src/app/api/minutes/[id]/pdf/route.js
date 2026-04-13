@@ -52,38 +52,36 @@ function getTextContent(node) {
      return ''
 }
 
-function renderInlineNodes(nodes, parentStyle = {}) {
-     if (!nodes?.length) return null
-     return nodes.map((node, i) => {
+function collectInlineSpans(nodes, accStyle = {}) {
+     const spans = []
+     for (const node of nodes ?? []) {
           if (node.type === 'text') {
                const text = node.data ?? ''
-               if (!text) return null
-               return <Text key={i} style={parentStyle}>{text}</Text>
+               if (text) spans.push({ text, style: accStyle })
+          } else if (node.type === 'tag') {
+               const tag = node.name?.toLowerCase()
+               if (tag === 'br') { spans.push({ text: '\n', style: accStyle }); continue }
+               let childStyle = { ...accStyle }
+               if (tag === 'strong' || tag === 'b') {
+                    childStyle.fontFamily = accStyle.fontFamily === 'Helvetica-Oblique' ? 'Helvetica-BoldOblique' : 'Helvetica-Bold'
+               } else if (tag === 'em' || tag === 'i') {
+                    childStyle.fontFamily = accStyle.fontFamily === 'Helvetica-Bold' ? 'Helvetica-BoldOblique' : 'Helvetica-Oblique'
+               } else if (tag === 's' || tag === 'strike' || tag === 'del') {
+                    childStyle.textDecoration = 'line-through'
+               } else if (tag === 'code') {
+                    childStyle.fontFamily = 'Courier'
+                    childStyle.fontSize = 9
+               }
+               spans.push(...collectInlineSpans(node.children, childStyle))
           }
-          if (node.type !== 'tag') return null
-          const tag = node.name?.toLowerCase()
-          if (tag === 'strong' || tag === 'b') {
-               const style = { ...parentStyle, fontFamily: parentStyle.fontFamily === 'Helvetica-Oblique' ? 'Helvetica-BoldOblique' : 'Helvetica-Bold' }
-               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
-          }
-          if (tag === 'em' || tag === 'i') {
-               const style = { ...parentStyle, fontFamily: parentStyle.fontFamily === 'Helvetica-Bold' ? 'Helvetica-BoldOblique' : 'Helvetica-Oblique' }
-               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
-          }
-          if (tag === 'code') {
-               const style = { ...parentStyle, fontFamily: 'Courier', fontSize: 9 }
-               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
-          }
-          if (tag === 's' || tag === 'strike' || tag === 'del') {
-               const style = { ...parentStyle, textDecoration: 'line-through' }
-               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
-          }
-          if (tag === 'br') {
-               return <Text key={i}>{'\n'}</Text>
-          }
-          // For any other inline tag, recurse
-          return <Text key={i} style={parentStyle}>{renderInlineNodes(node.children, parentStyle)}</Text>
-     }).filter(Boolean)
+     }
+     return spans
+}
+
+function renderInlineNodes(nodes, parentStyle = {}) {
+     const spans = collectInlineSpans(nodes, parentStyle)
+     if (!spans.length) return null
+     return spans.map((span, i) => <Text key={i} style={span.style}>{span.text}</Text>)
 }
 
 function renderHtmlNodes(nodes, depth = 0) {
