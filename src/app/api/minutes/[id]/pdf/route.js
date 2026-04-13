@@ -63,22 +63,26 @@ function renderInlineNodes(nodes, parentStyle = {}) {
           if (node.type !== 'tag') return null
           const tag = node.name?.toLowerCase()
           if (tag === 'strong' || tag === 'b') {
-               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Helvetica-Bold' }}>{getTextContent(node)}</Text>
+               const style = { ...parentStyle, fontFamily: parentStyle.fontFamily === 'Helvetica-Oblique' ? 'Helvetica-BoldOblique' : 'Helvetica-Bold' }
+               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
           }
           if (tag === 'em' || tag === 'i') {
-               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Helvetica-Oblique' }}>{getTextContent(node)}</Text>
+               const style = { ...parentStyle, fontFamily: parentStyle.fontFamily === 'Helvetica-Bold' ? 'Helvetica-BoldOblique' : 'Helvetica-Oblique' }
+               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
           }
           if (tag === 'code') {
-               return <Text key={i} style={{ ...parentStyle, fontFamily: 'Courier', fontSize: 9 }}>{getTextContent(node)}</Text>
+               const style = { ...parentStyle, fontFamily: 'Courier', fontSize: 9 }
+               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
           }
           if (tag === 's' || tag === 'strike' || tag === 'del') {
-               return <Text key={i} style={{ ...parentStyle, textDecoration: 'line-through' }}>{getTextContent(node)}</Text>
+               const style = { ...parentStyle, textDecoration: 'line-through' }
+               return <Text key={i} style={style}>{renderInlineNodes(node.children, style)}</Text>
           }
           if (tag === 'br') {
                return <Text key={i}>{'\n'}</Text>
           }
           // For any other inline tag, recurse
-          return <Text key={i} style={parentStyle}>{getTextContent(node)}</Text>
+          return <Text key={i} style={parentStyle}>{renderInlineNodes(node.children, parentStyle)}</Text>
      }).filter(Boolean)
 }
 
